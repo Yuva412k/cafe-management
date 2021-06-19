@@ -11,7 +11,7 @@
     "DB_USER" => getenv('DB_USER') ?? "root",
     "DB_PASS" => getenv('DB_PASSWORD') ?? null,
 
-    "BASE_URL" => "finalproject/",
+    "BASE_URL" => "/",
     "VIEWS_PATH" => APP."views/",
     "ERRORS_PATH" => APP."views/errors/",
 

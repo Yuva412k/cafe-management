@@ -6,10 +6,10 @@
 
  return array(
 
-    "DB_HOST" =>"localhost",
-    "DB_NAME" => "cafemanagement",
-    "DB_USER" => "root",
-    "DB_PASS" => null,
+    "DB_HOST" =>env('DB_HOST',"localhost"),
+    "DB_NAME" => env('DB_NAME',"cafemanagement"),
+    "DB_USER" => env('DB_USER',"root"),
+    "DB_PASS" => env('DB_PASSWORD',null),
 
     "BASE_URL" => "finalproject/",
     "VIEWS_PATH" => APP."views/",

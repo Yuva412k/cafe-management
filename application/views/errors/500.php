@@ -15,6 +15,9 @@
             <!-- /.container-fluid -->
         </div>
         <!-- /#page-wrapper -->
+
+<?php
 echo "<pre>";
 var_dump($_SERVER);
 var_dump($_SESSION);
+?>

@@ -1,0 +1,10 @@
+{
+    "name": "yuva/cafemanagement",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        }
+    }
+
+}

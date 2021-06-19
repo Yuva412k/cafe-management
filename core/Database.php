@@ -20,7 +20,7 @@ class Database{
     {
         if($this->connection === null)
         {
-            $this->connection = new PDO('mysql:host='.Config::get('DB_HOST').';dbname='.Config::get('DB_NAME'), Config::get("DB_USER"), Config::get("DB_PASS"));
+            $this->connection = new PDO('mysql:host='.Config::get('DB_HOST').'port='.Config::get('DB_PORT').';dbname='.Config::get('DB_NAME'), Config::get("DB_USER"), Config::get("DB_PASS"));
             // $this->connection = new PDO('mysql:host=localhost;port=3306;dbname=cafemanagement', 'root', null);
             $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

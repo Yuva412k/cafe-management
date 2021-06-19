@@ -27,5 +27,6 @@ class Logger{
 
         //log/write error to log file
         error_log($err, 3 , $logfile);
+        echo $logfile;
     }
 }

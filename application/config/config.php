@@ -10,6 +10,7 @@
     "DB_NAME" => getenv('DB_NAME') ??"cafemanagement",
     "DB_USER" => getenv('DB_USER') ?? "root",
     "DB_PASS" => getenv('DB_PASSWORD') ?? null,
+    "DB_PORT" => getenv('DB_PORT') ?? 3306,
 
     "BASE_URL" => "/",
     "VIEWS_PATH" => APP."views/",

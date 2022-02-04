@@ -5,7 +5,7 @@ use app\core\Session;
 <section class="wrapper">
     <div class="content-wrapper">
         <div class="content-header">
-            <h2>Tax List</h2>    
+            <h2>Users List</h2>    
         </div>
 
         <!-- FLASH MESSAGE START -->
@@ -35,13 +35,13 @@ use app\core\Session;
                     <i class="fas fa-search icons" style="margin:0;padding: 6px 8px;"></i><input type="text" id="table_search">
                 </div>
             </div>
-            <table id="tax_list" class="table is-striped table-hover" style="width: 100%">
+            <table id="users_list" class="table is-striped table-hover" style="width: 100%">
                 <thead>
                     <tr>
                        <th><input type="checkbox" name="" id="checkall"></th>
-                       <th>Tax ID</th>
-                       <th>Tax Name</th>
-                       <th>Description</th>
+                       <th>Name</th>
+                       <th>Role</th>
+                       <th>Username</th>
                        <th>Action</th>
                    </tr>
                 </thead>
@@ -58,11 +58,11 @@ use app\core\Session;
 <?php include_once APP."views/common/datatable_js.php"?>
 <?php include_once APP."views/common/datatable_btn_js.php"?>
 
-<script src="<?php echo PUBLIC_ROOT.'js/tax.js'?>"></script> 
+<script src="<?php echo PUBLIC_ROOT.'js/users.js'?>"></script> 
  
     <script>
          function loadTable(){
-          const table = $('#tax_list').DataTable({
+          const table = $('#users_list').DataTable({
                 'sDom': '<"top"l>t<"bottom"ip>',
                 "pageLength": 10,
                 "order": [[ 1, 'dec' ]],
@@ -73,7 +73,7 @@ use app\core\Session;
                 'processing' :true, //Feautre control the processing indicator
                 // AJAX LOAD DATA FOR THE TABLE
                 'ajax' : {
-                    'url': "<?php echo PUBLIC_ROOT.'tax/ajaxList'?>",
+                    'url': "<?php echo PUBLIC_ROOT.'users/ajaxList'?>",
                     'type': 'POST',
                 },
                 'columnDefs' : [
@@ -98,7 +98,7 @@ use app\core\Session;
             $("#sort").click(function(){
                 $("#sort-opt").empty()
                 let i= 1;
-                var n = $('#tax_list thead th').length;
+                var n = $('#users_list thead th').length;
                 for(i = 1; i<n; i++){
                     let title = table.column(i).header().innerHTML
                     let element = $("<li></li>").text(title.replace("#",""))

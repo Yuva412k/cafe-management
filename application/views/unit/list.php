@@ -1,6 +1,7 @@
 <?php 
 use app\core\Session;
 ?>
+
 <section class="wrapper">
     <div class="content-wrapper">
         <div class="content-header">
@@ -11,28 +12,30 @@ use app\core\Session;
         <?php include_once APP.'views/common/flashdata.php'; ?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <div class="table-header">
-                <input type="button" value="Delete" id="delete_record">
-                <div class="dropdown" id="sort-container">Sort By </span>
+        <div class="table-header">
+            <a href="#" id="delete_record" class="icons"><i class="fas fa-trash-alt"></i></a>
+
+                <div class="dropdown" id="sort-container">
+                    <a href="#" id="sort" class="icons"><i class="fas fa-sort-alpha-up"></i></a>
                     <ul id="sort-opt" class="dropdown-menu"></ul>
                 </div>
                 <div class="dropdown">
-                    <i id="icon-pointer"> icon</i>
-                    <ul class="dropdown-menu">
-                        <li class="menu-header">Export</li>
-                        <li class="expToExcel">Excel</li>
-                        <li class="expToCSV">CSV</li>
-                        <li class="expToPDF">PDF</li>
-                        <li class="menu-header">Additional</li>
-                        <li class="print">Print</li>
-                        <li>Settings</li>
+                    <a href="#" class="icons"><i class="fas fa-bars"></i></a>
+                    <ul class="dropdown-menu" id="export-menu">
+                        <li class="menu-header" style="padding: 5px 8px;color:var(--box-text);font-weight:bolder">Export</li>
+                        <li class="expToExcel"><a href="#">Excel</a></li>
+                        <li class="expToCSV"><a href="#">CSV</a></li>
+                        <li class="expToPDF"><a href="#">PDF</a></li>
+                        <li class="menu-header"  style="padding: 5px 8px;color:var(--box-text);font-weight:bolder">Additional</li>
+                        <li class="print"><a href="#">Print</a></li>
+                        <li><a href="#">Settings</a></li>
                     </ul>
                 </div>
                 <div class="search-container">
-                    <i class="fas fa-search"></i><input type="text" id="table_search">
+                    <i class="fas fa-search icons" style="margin:0;padding: 6px 8px;"></i><input type="text" id="table_search">
                 </div>
             </div>
-            <table id="unit_list" class="table is-striped" style="width: 100%">
+            <table id="unit_list" class="table is-striped table-hover" style="width: 100%">
                 <thead>
                     <tr>
                        <th><input type="checkbox" name="" id="checkall"></th>
@@ -64,7 +67,7 @@ use app\core\Session;
                 "pageLength": 10,
                 "order": [[ 1, 'dec' ]],
                 buttons: true,
-                "scrollX": true,
+                
                 'responsive' : true,
                 serverSide : true,
                 'processing' :true, //Feautre control the processing indicator
@@ -92,7 +95,7 @@ use app\core\Session;
             $(".print").on("click", function() {
                 table.button( '.buttons-print' ).trigger();
             });
-            $(".sort").click(function(){
+            $("#sort").click(function(){
                 $("#sort-opt").empty()
                 let i= 1;
                 var n = $('#unit_list thead th').length;

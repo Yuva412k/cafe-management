@@ -15,25 +15,23 @@ if(!isset($unit_name)){
             <?php include_once APP.'views/common/flashdata.php'?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <form  name='unit-form' id='unit-form'>
+            <form  name='unit-form' class="validate-form" id='unit-form'>
                 <div class="header">
                     <div class="item-pair">
                         <label for="unit_name">Unit Name <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="unit_name" style="width: 100%;" value="<?php print $unit_name; ?>"  id="unit_name" autofocus>
-                        <span id="unit_name_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input"  data-validate="Unit name is required">
+                        <input type="text" class="req-input" name="unit_name" style="width: 100%;" value="<?php print $unit_name; ?>"  id="unit_name" autofocus>
                         </div>
                     </div>
                     <div class="item-pair">
                         <label for="item_id">Unit ID <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="unit_id" style="width: 100%;" id="unit_id" value="<?php print $unit_id; ?>">
-                        <span id="unit_id_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input"  data-validate="Unit id is required">
+                        <input type="text" class="req-input" name="unit_id" style="width: 100%;" id="unit_id" readonly value="<?php print $unit_id; ?>">
                         </div>
                     </div>
                     <div class="item-pair" style="display: flex;align-items: center;">
                         <label for="unit_description">Description</label>
-                        <textarea style="width: 60%;border-radius: 5px;border:1px solid #ccc;margin-left: 3px;" id="unit_description" name="unit_description"><?php print $unit_description; ?></textarea>
+                        <textarea style="width: 60%;border-radius: 5px;border:1px solid #ccc;margin-left: 3px;" id="unit_description" name="unit_description">&nbsp;<?php print $unit_description; ?></textarea>
                     </div>     
                     
                     <div class="item-pair">
@@ -54,11 +52,11 @@ if(!isset($unit_name)){
                         ?>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
+                    <div class="btn"><a href="<?php echo PUBLIC_ROOT.'unit' ?>" id='button'>Cancel</a></div>
                     <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
                 </div>
             </form>
             <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT; ?>">

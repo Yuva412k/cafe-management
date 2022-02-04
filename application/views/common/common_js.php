@@ -10,3 +10,5 @@
         echo '<script>$(document).ready(function(){toastr["success"]("'.Session::getFlashData('complete').'")});</script>';
     }
 ?>
+
+

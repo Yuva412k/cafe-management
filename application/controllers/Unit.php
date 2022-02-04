@@ -146,8 +146,27 @@ class Unit extends Controller{
             $row[] = $unit['unit_name'];
             $row[] = $unit['unit_description'];
             $url = PUBLIC_ROOT.'unit/update/'.$unit['unit_id'];
-            $row[] = "<a href='#' class='row-del' onclick='delete_unit(\"". $unit["unit_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
+            // $row[] = "<a href='#' class='row-del' onclick='delete_unit(\"". $unit["unit_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
 
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="'.$url.'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>
+                </li>';
+
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_unit(\''.$unit["unit_id"].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i>Delete
+                    </a>
+                </li>
+                
+            </ul>
+        </div>';		
+
+        $row[] = $str2;
             $data[] = $row;
         }
         $ajaxData = array(

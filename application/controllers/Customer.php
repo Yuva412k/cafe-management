@@ -15,23 +15,37 @@ class Customer extends Controller{
 
         $action = $this->request->param('action');
 
-        $actions = ['ajaxList','addCustomer', 'updateCustomer', 'removeCustomer'];
+        $actions = ['ajaxList','addCustomer', 'updateCustomer', 'removeCustomer','showPayNowModal','savePayment','showPayReturnDueModal','saveReturnDuePayment'];
         $this->Security->requireAjax($actions);
         switch($action)
         {
             case 'addCustomer': 
-                $this->Security->config('form',['fields'=>['cust_name','cust_id','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'],'exclude'=>['save&reset','reset']]);
+                $this->Security->config('form',['fields'=>['cust_name','cust_id','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'],'exclude'=>['reset','reset']]);
                 break;
             case 'updateCustomer': 
-                $this->Security->config('form',['fields'=>['cust_name','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'],'exclude'=>['save&reset','reset']]);
+                $this->Security->config('form',['fields'=>['id','cust_id','cust_name','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'],'exclude'=>['reset','reset']]);
                 break;
             case 'removeCustomer':
-                $this->Security->config('form',['fields'=>['cust_name', 'cust_id']]);    
+                $this->Security->config('validateForm',false);    
                 break;
             case 'ajaxList':
                 $this->Security->config('validateForm',false);    
                 break;
-            
+            case 'removeMultipleCustomer':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'showPayNowModal':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'savePayment':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'showPayReturnDueModal':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'saveReturnDuePayment':
+                $this->Security->config('validateForm',false);    
+                break;
         }
         $this->loadModel('customerModel');
     }
@@ -49,17 +63,17 @@ class Customer extends Controller{
         //customer id auto generate
        Config::setJsConfig('curPage', 'customer/add');
        $customerid = $this->customerModel->createCustomerId();
-       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "customer/add", ['customerid'=>$customerid]);
+       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "customer/add", ['customer_id'=>$customerid]);
     }
 
     public function addCustomer()
     {
         $custFields = ['cust_name','cust_id','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'];
         $createdDate = date('Y-m-d');
-        $createdBy = Session::getUserRole();
+        $createdBy = Session::getUsername();
         $fields = [];
         foreach($custFields as $field){
-            if($field==='cust_mobile' || $field === 'cust_pincode' || $field === 'cust_balance'){
+            if($field=='cust_mobile' || $field == 'cust_pincode' || $field == 'cust_balance'){
                 $fields[$field] = empty($this->request->data($field)) ? null:  (int)$this->request->data($field) ;
                 continue;
             }
@@ -83,9 +97,14 @@ class Customer extends Controller{
     }
     public function updateCustomer()
     {
-        $customerFields = ['id','customer_id', 'customer_name', 'customer_description'];
+        $custFields = ['id','cust_name','cust_id','cust_mobile', 'cust_GST', 'cust_balance', 'cust_country', 'cust_state', 'cust_city', 'cust_pincode', 'cust_address'];
+
         $fields = [];
-        foreach($customerFields as $field){
+        foreach($custFields as $field){
+            if($field=='cust_mobile' || $field == 'cust_pincode' || $field == 'cust_balance'){
+                $fields[$field] = empty($this->request->data($field)) ? null:  (int)$this->request->data($field) ;
+                continue;
+            }
             $fields[$field] = $this->request->data($field);
         }
         $result = $this->customerModel->updateCustomerFromTable($fields);
@@ -148,8 +167,8 @@ class Customer extends Controller{
         foreach($result as $customer){
 
             $row = array();
-            $disable = ($customer['customer_id'] === 'CU0001') ? 'disabled' : '';
-            if($customer['customer_id'] === 'CU0001'){
+            $disable = ($customer['customer_id'] == 'CU0001') ? 'disabled' : '';
+            if($customer['customer_id'] == 'CU0001'){
                 $row[] = '<span class="walk-in-cust">NA</span>';
             }else{
                 $row[] ='<input type="checkbox" name="checkbox[]"'.$disable.'value='.$customer['customer_id'].' class="row_check" >';
@@ -162,9 +181,40 @@ class Customer extends Controller{
             $row[] = $customer['address'];
             $row[] = $customer['city'];
             $row[] = $customer['state'];
-            $row[] = $customer['country'];
+            $row[] = $customer['sales_due'];
+            $row[] = $customer['sales_return_due'];
             $row[] = $customer['opening_balance'];
+            $url = PUBLIC_ROOT.'customer/update/'.$customer['customer_id'];
+            // $row[] = "<a href='#' class='row-del' onclick='delete_customer(\"". $customer["customer_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
 
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="'.$url.'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>
+                </li>';
+                $str2.='<li>
+                <a style="cursor:pointer;" title="Pay Opening Balance & Sales Due Payments" onclick="pay_now(\''.$customer['customer_id'].'\')" >
+                    <i class="fas fa-money"></i> Pay Due 
+                    </a>
+                </li>';
+                $str2.='<li>
+                <a style="cursor:pointer;" title="Pay Return Due"  onclick="pay_return_due(\''.$customer['customer_id'].'\')" >
+                    <i class="fas fa-money"></i> Pay Return D...
+                </a>
+                </li>';
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_customer(\''.$customer["customer_id"].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i> Delete
+                    </a>
+                </li>
+                
+            </ul>
+        </div>';		
+
+        $row[] = $str2;
             $data[] = $row;
         }
         $ajaxData = array(
@@ -175,6 +225,57 @@ class Customer extends Controller{
         );
         
         echo json_encode($ajaxData);
+    }
+
+    public function showPayNowModal()
+    {
+        $customer_id = $this->request->data('customer_id');
+        $res = $this->customerModel->showPayNowModal($customer_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
+    }
+
+    public function savePayment()
+    {
+        $createdDate = date('Y-m-d');
+        $createdBy = Session::getUsername();
+        $created_time = date('h:m:s');
+        $res = $this->customerModel->savePayment(array_merge($_POST,['created_by'=>$createdBy, 'created_date'=>$createdDate, 'created_time'=>$created_time]));
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            echo 'success';
+        }
+    }
+
+    public function showPayReturnDueModal()
+    {
+        $customer_id = $this->request->data('customer_id');
+        $res = $this->customerModel->showPayReturnDueModal($customer_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
+    }
+    public function saveReturnDuePayment()
+    {
+        $createdDate = date('Y-m-d');
+        $createdBy = Session::getUsername();
+        $created_time = date('h:m:s');
+        $res = $this->customerModel->saveReturnDuePayment(array_merge($_POST,['created_by'=>$createdBy, 'created_date'=>$createdDate, 'created_time'=>$created_time]));
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            return 'success';
+        }
     }
     public function isAuthorized()
     {
@@ -188,6 +289,10 @@ class Customer extends Controller{
             'removeCustomer'=>'delete',
             'updateCustomer'=>'edit',
             'addCustomer'=>'add',
+            'showPayNowModal','sales_payment_add',
+            'savePayment', 'sales_payment_add',
+            'saveReturnDuePayment','sales_return_payment_add',
+            'showPayReturnDueModal','sales_return_payment_add',
         ];
 
         return Permission::check($role, $resource, $action, $action_alias);

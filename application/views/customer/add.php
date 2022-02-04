@@ -1,6 +1,11 @@
 <?php 
 use app\core\Session;
+
+if(!isset($id)){
+    $customer_name=$mobile=$customer_gstin=$opening_balance=$country=$state=$city=$pincode=$address='';
+}
 ?>
+
 <section class="wrapper">
     <div class="content-wrapper">
         <div class="content-header">
@@ -10,34 +15,32 @@ use app\core\Session;
             <?php include_once APP.'views/common/flashdata.php'?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <form  name='customer-form' id='customers-form' method="post" action="<?php echo PUBLIC_ROOT.'customer/addCustomer'?>">
+            <form  name='customer-form' id='customer-form' class="validate-form" method="post" action="<?php echo PUBLIC_ROOT.'customer/addCustomer'?>">
                 <div class="header">
                     <div class="item-pair">
                         <label for="cust_name">Customer Name <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="cust_name" style="width: 100%;"  id="cust_name" autofocus>
-                        <span id="cust_name_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input" data-validate="Customer Name is required">
+                        <input class="req-input" type="text" name="cust_name" style="width: 100%;"  value="<?php echo $customer_name;?>" id="cust_name" autofocus>
                         </div>
                     </div>
                     <div class="item-pair">
                         <label for="cust_id">Customer ID <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="cust_id" style="width: 100%;" id="cust_id" value="<?=$customerid; ?>">
-                        <span id="cust_id_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input" data-validate="Customer Id is required">
+                        <input class="req-input" type="text" name="cust_id" style="width: 100%;" id="cust_id" value="<?=$customer_id; ?>" readonly>
                         </div>
                     </div>
                     <div class="item-pair">
                         <label for="cust_mobile">Mobile</label>
-                        <input type="text" name="cust_mobile" id="cust_mobile" >
+                        <input type="text" name="cust_mobile" id="cust_mobile" class="number" value="<?php echo $mobile;?>">
                     </div>
                     <div class="item-pair">
                         <label for="cust_GST">GST Number</label>
-                        <input type="text" name="cust_GST" id='cust_GST' value="">
+                        <input type="text" name="cust_GST" id='cust_GST' value="<?php echo $customer_gstin;?>">
                     </div>
 
                     <div class="item-pair">
                         <label for="cust_balance">Opening Balence</label>
-                        <input type="text" name="cust_balance" id="cust_balance">
+                        <input type="text" name="cust_balance" id="cust_balance" class="number" value="<?php echo $opening_balance?>">
                     </div>
                     <div class="item-pair">
                         <label for="cust_country">Country</label>
@@ -48,20 +51,20 @@ use app\core\Session;
                     <div class="item-pair">
                         <label for="cust_state">State</label>
                         <select name="cust_state" id="cust_state" style="width: 60%">
-                            <option value="">Puducherry</option>
+                            <option value="puducherry">Puducherry</option>
                         </select>
                     </div>                
                     <div class="item-pair">
                         <label for="cust_city">City</label>
-                        <input type="text" name="cust_city" id="cust_city">
+                        <input type="text" name="cust_city" id="cust_city"  value="<?php echo $city;?>">
                     </div>  
                     <div class="item-pair">
                         <label for="cust_pincode">Pincode</label>
-                        <input type="text" name="cust_pincode"  id="cust_pincode">
+                        <input type="text" name="cust_pincode"  id="cust_pincode"  value="<?php echo $pincode;?>">
                     </div>
                     <div class="item-pair" style="display: flex;align-items: center;">
                         <label for="cust_address">Address</label>
-                        <textarea style="width: 60%;border-radius: 5px;border:1px solid #ccc;margin-left: 3px;" name="cust_address" id="cust_address"></textarea>
+                        <textarea style="width: 60%;border-radius: 5px;border:1px solid #ccc;margin-left: 3px;" name="cust_address" id="cust_address"> <?php echo $address;?></textarea>
                     </div>
                     <div class="item-pair">
                         <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT; ?>">
@@ -69,12 +72,26 @@ use app\core\Session;
                     </div>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <?php 
+                        if(isset($id)){
+                            $btn_name = 'Update';
+                            $btn_id = 'update';
+                    ?>
+                        <input type='hidden' name='id' value='<?php echo $id;?>'>
+                        <?php 
+                        }
+                        else{
+                            $btn_id='save';
+                            $btn_name='Save';
+                        }
+                        ?>
+                </div>
+
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
-                    <div class="btn"><input type="submit" name='submit' id="save" value="Save"></div>
-                    <div class="btn"><input type="submit" name='update' id="update" value="update"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
+                    <div class="btn"><a href="<?php echo PUBLIC_ROOT.'customer' ?>" id='button'>Cancel</a></div>
+                    <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
                 </div>
             </form>
         </div>

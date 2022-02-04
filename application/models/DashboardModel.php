@@ -17,6 +17,7 @@ class DashboardModel extends Model{
         $this->db->prepare("SELECT COALESCE(sum(grand_total),0) AS today_total_sales FROM sales WHERE sales_date='$today_date' AND sales_status='final'");
         $this->db->execute();
         $today_total_sales = $this->db->fetchAssociative()['today_total_sales'];
+        
 
         //Today Total Purchase
         $this->db->prepare("SELECT COALESCE(sum(grand_total),0) AS today_total_purchase FROM purchase WHERE purchase_date='$today_date'");
@@ -44,12 +45,12 @@ class DashboardModel extends Model{
         $total_customers = $this->db->fetchAssociative()['total_customers'];
 
         //Total Purchase Count
-        $this->db->prepare("SELECT COALESCE(count(*),0) AS total_purchase_count FROM purchase WHERE purchase_status='received'");
+        $this->db->prepare("SELECT COALESCE(count(*),0) AS total_purchase_count FROM purchase WHERE purchase_status='received' AND purchase_date='$today_date'");
         $this->db->execute();
         $total_purchase_count = $this->db->fetchAssociative()['total_purchase_count'];
 
         //Total Sales Count
-        $this->db->prepare("SELECT COALESCE(count(*),0) AS total_sales_count FROM sales WHERE sales_status='final'");
+        $this->db->prepare("SELECT COALESCE(count(*),0) AS total_sales_count FROM sales WHERE sales_status='final' AND sales_date='$today_date'");
         $this->db->execute();
         $total_sales_count = $this->db->fetchAssociative()['total_sales_count'];
 

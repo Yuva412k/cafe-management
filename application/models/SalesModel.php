@@ -49,6 +49,7 @@ class SalesModel extends Model
                 return $this->error;
             }
         }
+        $this->db->beginTransaction();
         $amount = $fields['amount'];
         $payment_type = $fields['payment_type'];
         $payment_note = $fields['payment_note'];
@@ -121,17 +122,18 @@ class SalesModel extends Model
 
                 $single_unit_total_cost -= $discount_amt_per_unit;
 
-                if ($discount_input == '' || $discount_input === 0) {
+                if ($discount_input == '' || $discount_input == 0) {
                     $discount_input = null;
                 }
-                if ($total_cost == '' || $total_cost === 0) {
+                if ($total_cost == '' || $total_cost == 0) {
                     $total_cost = null;
                 }
 
                 $sales_status = $fields['sales_status'];
                 $sales_id = $fields['sales_id'];
-                $query = "INSERT INTO salesitems SET sales_id='$sales_id', sales_status='$sales_status', item_id='$item_id', sales_qty='$sales_qty', price_per_unit='$per_unit_price', discount_type='$discount_type', discount_amt='$discount_amt', discount_input='$discount_input', unit_total_cost='$unit_total_cost', total_cost='$total_cost'";
+                $query = "INSERT INTO salesitems SET sales_id='$sales_id', sales_status='$sales_status', item_id='$item_id', sales_qty='$sales_qty', price_per_unit='$per_unit_price', discount_type='$discount_type', discount_amt='$discount_amt', discount_input=:discount_input, unit_total_cost='$unit_total_cost', total_cost='$total_cost'";
                 $this->db->prepare($query);
+                $this->db->bindValue(':discount_input', $discount_input);
                 $this->db->execute();
 
                 $result = $this->itemModel->updateItemsQuantity($item_id);
@@ -163,6 +165,7 @@ class SalesModel extends Model
         if (!$updateSalesPaymentStatus) {
             return false;
         }
+        $this->db->commit();
         return true;
     }
 
@@ -177,16 +180,16 @@ class SalesModel extends Model
         $query .= ' as a, customer as b WHERE b.customer_id=a.customer_id';
 
         $start = 0;
-        foreach ($this->columnOrder as $item) {
+        foreach ($this->dbColumnOrder as $item) {
 
             if (!empty($_POST['search']['value'])) {
-                if ($start === 0) {
+                if ($start == 0) {
                     $query .= ' OR ( ' . $item . " LIKE '%" . $_POST['search']['value'] . "%'";
                 } else {
                     $query .= ' OR ' . $item . " LIKE '%" . $_POST['search']['value'] . "%'";
                 }
 
-                if (count($this->columnOrder) - 1 === $start) {
+                if (count($this->dbColumnOrder) - 1 == $start) {
                     $query .= ')';
                 }
             }
@@ -199,7 +202,7 @@ class SalesModel extends Model
             }else{
                 $query .= ' ORDER BY ' . $this->dbColumnOrder[$_POST['order']['0']['column']] . ' ';
             }
-            $query .= ($_POST['order']['0']['dir'] === 'desc') ? 'DESC' : 'ASC';
+            $query .= ($_POST['order']['0']['dir'] == 'desc') ? 'DESC' : 'ASC';
         } else {
             $query .= ' ORDER BY ' . $this->order[0] . " " . $this->order[1];
         }
@@ -415,24 +418,24 @@ class SalesModel extends Model
         <tr id="row_<?= $rowcount ?>" data-row='<?= $rowcount ?>'>
 
             <!--Item Name -->
-            <td id="td_<?= $rowcount ?>_1" width="50%">
-                <input type="text" placeholder="Type or click to select an item." value="<?= $item_name ?>" id="td_data_<?= $rowcount ?>_1">
+            <td id="td_<?= $rowcount ?>_1" width="40%">
+                <input type="text" style="text-align: left;" value="<?= $item_name ?>" id="td_data_<?= $rowcount ?>_1">
             </td>
             <!-- Quantity -->
             <td id="td_qty_<?= $rowcount ?>">
-                <input type="text" onkeyup="calculateQty(<?= $rowcount ?>)" name="td_data_qty_<?= $rowcount ?>" id="td_data_qty_<?= $rowcount ?>" value="<?= $sales_qty ?>">
+                <input type="number" onchange="calculateQty(<?= $rowcount ?>)" style="text-align: left;" name="td_data_qty_<?= $rowcount ?>" id="td_data_qty_<?= $rowcount ?>" value="<?= $sales_qty ?>">
             </td>
 
             <!-- Unit Cost -->
             <td id="td_tot_unit_cost_<?= $rowcount ?>_3">
-                <input type="item_rate" onkeyup="calculate_amount(<?= $rowcount; ?>)" id="td_data_tot_unit_cost_<?= $rowcount ?>" name="td_data_tot_unit_cost_<?= $rowcount ?>" value="<?= $item_sales_price; ?>">
+                <input type="text" class="number" onkeyup="calculate_amount(<?= $rowcount; ?>)" id="td_data_tot_unit_cost_<?= $rowcount ?>" name="td_data_tot_unit_cost_<?= $rowcount ?>" value="<?= $item_sales_price; ?>">
             </td>
 
             <!-- Discount  -->
             <td id="td_discount_amt_<?= $rowcount ?>">
                 <div style="display: flex;">
                     <input style="margin: 0;width: 80%" class="total-disc" type="text" name="td_data_discount_input_<?= $rowcount ?>" id="td_data_discount_input_<?= $rowcount ?>" onkeyup="calculate_amount(<?= $rowcount; ?>)" value="<?= $item_discount_input ?>">
-                    <select name="item_discount_type_<?= $rowcount ?>" id="item_discount_type_<?= $rowcount ?>">
+                    <select name="item_discount_type_<?= $rowcount ?>" class="select" id="item_discount_type_<?= $rowcount ?>">
                         <?php
                         $selectper = '';
                         $selectrup = '';
@@ -456,7 +459,7 @@ class SalesModel extends Model
 
             <!-- Remove Button -->
             <td id="td_btn_<?= $rowcount ?>">
-                <a id="td_data_<?= $rowcount ?>_16" name="td_data_<?= $rowcount ?>_16">-</a>
+                <a id="td_data_<?= $rowcount ?>_16" name="td_data_<?= $rowcount ?>_16" onclick="removerow(<?=$rowcount?>)" style="background-color:crimson;padding:5px;border: 1px solid red;cursor:pointer"><i class="fas fa-minus"></i></a>
             </td>
 
             <input type="hidden" id="td_data_per_unit_price_<?= $rowcount; ?>" name="td_data_per_unit_price_<?= $rowcount; ?>" value="<?= $item_sales_price; ?>">
@@ -468,7 +471,36 @@ class SalesModel extends Model
 <?php
     }
 
-    function updateSalesPaymentBySalesId($sales_id, $customer_id)
+    // public function record_customer_payment($customer_id=null){
+    //     $customer_id_str = '';
+    //     if(empty($customer_id)){
+    //         $this->db->prepare("DELETE FROM customerpayments");
+    //         $this->db->execute();
+    //     }else{
+    //         $this->db->prepare("DELETE FROM customerpayments WHERE customer_id='$customer_id'");
+    //         $this->db->execute();
+    //         $customer_id_str = "AND b.customer_id='$customer_id'";
+    //     }
+
+    //     $q1 = "INSERT INTO customerpayments (salespayment_id,customer_id,payment_date,payment_type, 
+    //     payment,payment_note,
+    //     created_date,
+    //     created_time,created_by ) 
+    //     SELECT a.id,b.customer_id,a.payment_date,a.payment_type, 
+    //          COALESCE(SUM(a.payment)),a.payment_note,
+    //          a.created_date,a.created_time,a.created_by FROM salespayments AS a, sales AS b WHERE b.sales_id=a.sales_id $customer_id_str GROUP BY b.customer_id,a.payment_type,a.payment_date,a.created_time,a.created_date";
+    //     $this->db->prepare($q1);
+    //     $r1 = $this->db->execute();
+    //     if(!$r1){
+    //         return false;
+    //     }
+
+    //     return true;
+
+    // }
+
+
+    public function updateSalesPaymentBySalesId($sales_id, $customer_id)
     {
         $query1 = "SELECT COALESCE(SUM(payment), 0) AS payment FROM salespayments WHERE sales_id='$sales_id'";
         $this->db->prepare($query1);
@@ -502,6 +534,10 @@ class SalesModel extends Model
         if (!$res) {
             return false;
         }
+
+        // if(!$this->record_customer_payment($customer_id)){
+		// 	return false;
+		// }
 
         return true;
     }
@@ -561,7 +597,7 @@ class SalesModel extends Model
 
     public function invoiceDetails($sales_id)
     {
-        $sales_info_query = "SELECT a.customer_name, a.mobile, a.customer_gstin, a.address, a.city, a.state, a.country, b.sales_date, b.sales_id, b.sales_time, b.reference_no, b.sales_status, b.tax_amt_cgst, b.tax_amt_sgst ,COALESCE(b.grand_total,0) AS grand_total, COALESCE(b.sub_total, 0) AS sub_total, COALESCE(b.paid_amount, 0) AS paid_amount,COALESCE(b.other_charges_input, 0) AS other_charges_input, b.other_charges_type, COALESCE(b.other_charges_amt,0) AS other_charges_amt, COALESCE(b.discount_on_all_input,0) AS discount_on_all_input, COALESCE(b.discount_on_all_amt,0) AS discount_on_all_amt,b.discount_on_all_type, COALESCE(b.round_off,0) AS round_off, c.tax, b.payment_status FROM customer AS a, sales AS b, tax as c WHERE a.`customer_id`=b.`customer_id` AND b.`sales_id`='$sales_id' AND b.`tax_id`=c.`tax_id`";
+        $sales_info_query = "SELECT a.customer_name, a.mobile, a.customer_gstin, a.address, a.city, a.state, a.country, b.sales_date, b.sales_id, b.sales_time, b.reference_no, b.sales_status, b.tax_amt_cgst, b.tax_amt_sgst, c.tax ,COALESCE(b.grand_total,0) AS grand_total, COALESCE(b.sub_total, 0) AS sub_total, COALESCE(b.paid_amount, 0) AS paid_amount,COALESCE(b.other_charges_input, 0) AS other_charges_input, b.other_charges_type, COALESCE(b.other_charges_amt,0) AS other_charges_amt, COALESCE(b.discount_on_all_input,0) AS discount_on_all_input, COALESCE(b.discount_on_all_amt,0) AS discount_on_all_amt,b.discount_on_all_type, COALESCE(b.round_off,0) AS round_off, c.tax, b.payment_status FROM customer AS a, sales AS b, tax as c WHERE a.`customer_id`=b.`customer_id` AND b.`sales_id`='$sales_id' AND b.`tax_id`=c.`tax_id`";
         $this->db->prepare($sales_info_query);
         $this->db->execute();
         $sales_info = $this->db->fetchAllAssociative();
@@ -581,6 +617,7 @@ class SalesModel extends Model
 
     public function removeSalesFromTable($ids)
     {
+        $this->db->beginTransaction();
         //Find the customer id 
         $query = "SELECT customer_id, sales_id FROM sales WHERE sales_id IN ($ids)";
 
@@ -634,17 +671,19 @@ class SalesModel extends Model
                 return false;
             }
         }
+        $this->db->commit();
         return true;
     }
 
     public function deletePayments($payment_id)
     {
-        $query1 = "SELECT sales_id FROM salespayments WHERE id=$payment_id";
+        $this->db->beginTransaction();
+        $query1 = "SELECT sales_id FROM salespayments WHERE id='$payment_id'";
         $this->db->prepare($query1);
         $this->db->execute();
         $sales_id = $this->db->fetchAssociative()['sales_id'];
 
-        $query2 = "SELECT customer_id FROM sales WHERE sales_id=$sales_id";
+        $query2 = "SELECT customer_id FROM sales WHERE sales_id='$sales_id'";
         $this->db->prepare($query2);
         $this->db->execute();
         $customer_id = $this->db->fetchAssociative()['customer_id'];
@@ -655,19 +694,254 @@ class SalesModel extends Model
         $res2 = $this->updateSalesPaymentStatus($sales_id, $customer_id);
 
         if ($res1 && $res2) {
+            $this->db->commit();
             return true;
         } else {
+            $this->db->rollBack();
             return false;
         }
     }
 
+
+    public function showPayNowModal($sales_id)
+    {
+        $q1 = "SELECT * FROM sales WHERE sales_id='$sales_id'";
+        $this->db->prepare($q1);
+        $this->db->execute();
+        $r1 = $this->db->fetchAssociative();
+        $customer_id = $r1['customer_id'];
+        $q2 = "SELECT * FROM customer WHERE customer_id='$customer_id'";
+        $this->db->prepare($q2);
+        $this->db->execute();
+        $r2 = $this->db->fetchAssociative();
+
+        $customer_name = $r2['customer_name'];
+        $customer_mobile = $r2['mobile'];
+        $customer_gstin = $r2['customer_gstin'];
+        $customer_address = $r2['address'];
+        $customer_state = $r2['state'];
+        $customer_pincode = $r2['pincode'];
+        $customer_opening_balance = $r2['opening_balance'];
+        $customer_sales_due = $r2['sales_due'];
+
+        $sales_date = $r1['sales_date'];
+        $reference_no = $r1['reference_no'];
+        $sales_id = $r1['sales_id'];
+        $grand_total = $r1['grand_total'];
+        $paid_amount = $r1['paid_amount'];
+        $due_amount = $grand_total - $paid_amount;
+
+        
+        ?>
+         <!-- The Modal -->
+    <div id="view_modal" class="modal">
+
+<!-- Modal content -->
+<div class="modal-content">
+    <div class="modal-header">
+    <span class="close">&times;</span>
+    <h2> Pay Now</h2>
+    </div>
+    <div class="modal-body">
+        <h4>Customer Details</h4><br>
+        <div class="modal-row" style="justify-content:center">
+            <div class="modal-col" style="width: 200px;">
+                <address>
+                    <strong><?php echo $customer_name; ?></strong><br>
+                    <?php echo (!empty(trim($customer_mobile))) ? "Mobile : $customer_mobile <br>" : '';?>
+                    <?php echo (!empty(trim($customer_address))) ? "Address :$customer_address <br> $customer_state" : '';?>
+                    <?php echo (!empty(trim($customer_gstin))) ? "GST NO: ".$customer_gstin."<br>" : '';?>
+                </address>
+            </div>
+            <div class="modal-col" style="width: 200px;">
+            <h4>Sales Details</h4><br>
+                <address>
+                   <b>Invoice No: <?php echo $sales_id;?></b><br>
+                   <b>Date : <?php echo $sales_date?></b><br>
+                   <b>Grand Total: <?php echo $grand_total;?></b><br>
+                </address>
+            </div>
+            </div>
+            <div class="modal-row" style="align-items: flex-start;flex-direction:column;margin-top:10px;">
+            <b>Paid Amount : <span><?=number_format($paid_amount,2);?></span></b>
+            <b>Due Amount  : <span  id='due_amount_temp'><?=number_format($due_amount,2);?></span></b>
+            </div>
+        <br>
+        <div class="modal-row" style="width: 100%;justify-content:center">
+            <div class="" style="width: 95%;">
+		        <input type="hidden" name="payment_row_count" id='payment_row_count' value="1">
+                <div class="modal-row" style="justify-content: space-between;">
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                        <label for="payment_date">Date</label>
+                        <div class="validate-input" style="width: 90%" data-validate='Date is required'>
+                            <input type="date" style="width: 100%;margin:5px" class="req-input" value="<?=date("Y-m-d");?>" id="payment_date" name="payment_date" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                        <label for="amount">Amount</label>
+                        <div class="validate-input" style="width: 90%" data-validate="Amount is required">
+                            <input type="text" style="width: 100%;margin:5px" class="req-input"  id="amount" name="amount" data-due-amt='<?=print $due_amount;?>' value="<?=number_format($due_amount,2,'.','');?>" >
+                        </div>
+                    </div>
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                    <label for="payment_type">Payment Type</label>
+                    <div class="validate-input" style="width: 90%" data-validate="Payment type is required">
+
+                        <select name="payment_type" style="width: 100%;margin:5px" id="payment_type" class="req-input">
+                        <?php
+                     $q4 = "SELECT * FROM paymenttype";
+                     $this->db->prepare($q4);
+                     $this->db->execute();
+                     $paymenttypeData = $this->db->fetchAllAssociative();
+                     foreach($paymenttypeData as $row){
+                         echo "<option value='".$row['paymenttype_id']."'>".$row['paymenttype_name']."</option>";
+                        }
+                        ?>
+                        </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-col" style="width:100%">
+                    <label for="payment_note">Payment Note</label>
+                    <textarea type="text" style="width: 100%;margin:5px;height:60px;" id="payment_note" name="payment_note" placeholder="" ></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="height:50px">
+    <button type="button" id="button" onclick="save_payment('<?=$sales_id;?>')" style="background-color: #5240a8;float:right">Save</button>
+    </div>
+</div>
+
+        <?php
+    }
+
+
+    public function viewPaymentModal($sales_id)
+    {
+        $q1 = "SELECT * FROM sales WHERE sales_id='$sales_id'";
+        $this->db->prepare($q1);
+        $this->db->execute();
+        $r1 = $this->db->fetchAssociative();
+
+        $customer_id = $r1['customer_id'];
+        $q2 = "SELECT * FROM customer WHERE customer_id='$customer_id'";
+        $this->db->prepare($q2);
+        $this->db->execute();
+        $r2 = $this->db->fetchAssociative();
+
+        
+        $customer_name = $r2['customer_name'];
+        $customer_mobile = $r2['mobile'];
+        $customer_gstin = $r2['customer_gstin'];
+        $customer_address = $r2['address'];
+        $customer_state = $r2['state'];
+        $customer_pincode = $r2['pincode'];
+        $customer_opening_balance = $r2['opening_balance'];
+        $customer_sales_due = $r2['sales_due'];
+
+        $sales_date = $r1['sales_date'];
+        $reference_no = $r1['reference_no'];
+        $sales_id = $r1['sales_id'];
+        $grand_total = $r1['grand_total'];
+        $paid_amount = $r1['paid_amount'];
+        $due_amount = $grand_total - $paid_amount;
+
+        ?>
+                <!-- The Modal -->
+    <div id="view_modal" class="modal">
+
+<!-- Modal content -->
+<div class="modal-content">
+    <div class="modal-header">
+    <span class="close">&times;</span>
+    <h2>View Payments</h2>
+    </div>
+    <div class="modal-body">
+        <div class="modal-row" style="justify-content: center;">
+            <div class="modal-col" style="width: 200px;">
+        <h4>Customer Details</h4><br>
+                <address>
+                    <strong><?php echo $customer_name; ?></strong><br>
+                    <?php echo (!empty(trim($customer_mobile))) ? "Mobile : $customer_mobile <br>" : '';?>
+                    <?php echo (!empty(trim($customer_address))) ? "Address :$customer_address <br> $customer_state" : '';?>
+                    <?php echo (!empty(trim($customer_gstin))) ? "GST NO: ".$customer_gstin."<br>" : '';?>
+                </address>
+            </div>
+            <div class="modal-col" style="width: 200px;">
+            <h4>Sales Details</h4><br>
+                <address>
+                   <b>Invoice No: <?php echo $sales_id;?></b><br>
+                   <b>Date : <?php echo $sales_date?></b><br>
+                   <b>Grand Total: <?php echo $grand_total;?></b><br>
+                </address>
+            </div>
+            </div>
+           
+            <div class="modal-row" style="width: 100%;">
+                    <br>
+                <table class="table" style="width: 100%;">
+                    <thead>
+                    <tr class="bg-primary">
+                    <th>#</th>
+                    <th>Payment Date</th>
+                    <th>Payment</th>
+                    <th>Payment Type</th>
+                    <th>Payment Note</th>
+                    <th>Created by</th>
+                    <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        $q5 = "SELECT * FROM salespayments WHERE sales_id='$sales_id' and payment>0";
+                        $i = 1;
+                        $str = '';
+                        $this->db->prepare($q5);
+                        $this->db->execute();
+                        if($this->db->countRows() > 0){
+                            $res = $this->db->fetchAllAssociative();
+                            foreach($res as $res1){
+                                echo "<tr>";
+                                echo "<td>".$i++."</td>";
+                                echo "<td>".$res1['payment_date']."</td>";
+                                echo "<td>".number_format($res1['payment'],2)."</td>";
+                                echo "<td>".$res1['payment_type']."</td>";
+                                echo "<td>".$res1['payment_note']."</td>";
+                                echo "<td>".$res1['created_by']."</td>";
+                                echo "<td><a onclick='delete_sales_payment(".$res1['id'].")' style='color:crimson;cursor:pointer;' ><i class='fa fa-trash'></i></a></td>";	
+                                echo "</tr>";
+                            }
+                        }else{
+                            echo "<tr><td colspan='7' style='text-align:center'>No Records Found</td></tr>";
+                        }
+                    ?>
+                </tbody>
+                </table>
+            </div>
+        <br>
+    <div class="modal-footer" style="height:50px">
+    <div class="modal-row" style="align-items: flex-end;flex-direction:column;">
+            <b>Paid Amount : <span><?=number_format($paid_amount,2);?></span></b>
+            <b>Due Amount  : <span><?=number_format($due_amount,2);?></span></b>
+            </div>
+
+    </div>
+</div>
+
+ 
+        <?php
+    }
     /**
      * Generate new Customer id
      */
     public function createSalesID()
     {
-        //TODO PREFIX FOR CUSTOMER FROM SETTING OR SOMETHING
-        $prefix = 'SL';
+        $this->db->prepare("SELECT sales_prefix FROM shopdetails");
+        $this->db->execute();
+        $prefix = $this->db->fetchAssociative()['sales_prefix'];
         //Create customers unique Id
         $query = "SELECT COALESCE(MAX(id), 0)+1 AS maxid FROM sales";
         $this->db->prepare($query);

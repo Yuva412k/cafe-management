@@ -3,8 +3,6 @@
     extract($shop_details);
     extract($sales_info[0]);
 
-    $sales_invoice_footer = '';
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,32 +28,38 @@ body{
 </style>
 </head>
 <body onload="window.print();">
-    <table style="margin:auto">
+    <table style="margin-left:auto;margin-right:auto;width:210mm">
         <thead>
             <tr>
-            <th colspan="5" rowspan="2">
-                <?=$shop_name?><br>
-                Address: <?=$shop_address?><br>
+            <td colspan="5" rowspan="2">
+                <b style="font-size: 20px;" ><?=$shop_name?></b><br>
+                <address style="margin-top:5px;">
+                <?=$shop_address?><br>
                 <?=$shop_city?><br>
                 <?=$shop_state?><br>
                 <?=$shop_pincode?><br>
                 <?=$shop_mobile?><br>
                 <?=$shop_phone?><br>
                 <?=$shop_gstin?><br>
-            </th>
+                </address>
+            </td>
 
-            <th colspan="5" rowspan="1">
-              <b>Sales Invoice </b>(<?=$sales_status?>)
-            </th>
+            <td colspan="5" rowspan="1">
+              <b style="font-size: 20px;">Sales Invoice </b><?php ($sales_status != 'final') ? print "(".ucfirst($sales_status).")" :  print '';?>
+            </td>
             </tr>
             <tr>
-                <th colspan="3" rowspan="1">
+                <td colspan="3" rowspan="1">
                     Invoice No : <?=$sales_id?><br>
                     Reference No : <?=$reference_no?>
-                </th>
-                <th colspan="2" rowspan="1">
-                    Date: <?=$sales_date."<br> ".$sales_time;?>
-                </th>
+                </td>
+                <td colspan="1" rowspan="1" style="border: none;">
+                    Date: 
+                </td>
+                <td style="border: none;">
+                <?=$sales_date."<br> "?>
+                          <?=$sales_time;?>
+                </td>
             </tr>
 
             <tr>
@@ -109,12 +113,12 @@ body{
                 </td>
             </tr>
             <tr>
-                <th rowspan="2">SL.No.</th>
-                <th rowspan="2" colspan="4">Item Name</th>
-                <th rowspan="2">Qty</th>
-                <th rowspan="2">Rate</th>
-                <th rowspan="2">Discount</th>
-                <th rowspan="2" colspan="2">Amount</th>
+                <th>#</th>
+                <th colspan="4">Product Name</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Discount</th>
+                <th colspan="2">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -134,14 +138,14 @@ body{
                             $discount_type = 'Rs';
                         }
                     }
-                    $discount = (empty($res['discount_input']) || $res['discount_input']===0)? '' : $res['discount_input'].' '.$discount_type;
+                    $discount = (empty($res['discount_amt']) || $res['discount_amt']===0)? '' : number_format($res['discount_amt'],2);
                     echo "<tr style='border:none'>";
                     echo "<td>".++$i."</td>";
                     echo "<td colspan='4'>".$res['item_name']."</td>";
                     echo "<td style='text-align:right'>".$res['sales_qty']."</td>";
-                    echo "<td style='text-align:right'>".$res['price_per_unit']."</td>";
+                    echo "<td style='text-align:right'>".number_format($res['price_per_unit'],2)."</td>";
                     echo "<td style='text-align:right'>".$discount."</td>";
-                    echo "<td style='text-align:right'>".$res['total_cost']."</td>";
+                    echo "<td style='text-align:right' colspan='2'>".number_format($res['total_cost'],2)."</td>";
                     echo "</tr>";
                 }
                 $tot_sales_price += $res['price_per_unit'];
@@ -150,24 +154,20 @@ body{
             </tr>
         </tbody>
         <tfoot>
+            <tr><td colspan="10"><br></td></tr>
             <tr>
-                <td></td>
-                <td colspan="4" style="text-align:right;font-weight:bold;">Total</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td style="text-align: right;"><?=$tot_total_cost?></td>
+                <td colspan="8" style="text-align: right;border:none">Sub Total</td>
+                <td colspan="2" style="text-align: right;"><?=number_format($sub_total,2)?></td>
             </tr>
+            <?php if(!empty($other_charges_amt) && $other_charges_amt != 0):?>
             <tr>
-                <td colspan="8" style="text-align: right;"><b>Sub Total</b></td>
-                <td style="text-align: right;"><?=$sub_total?></td>
+                <td colspan="8" style="text-align: right;border:none">Other Charges</td>
+                <td colspan="2" style="text-align: right;"><?=number_format($other_charges_amt,2)?></td>
             </tr>
+            <?php endif;?>
+            <?php if(!empty($discount_on_all_amt) && $discount_on_all_amt != 0):?>
             <tr>
-                <td colspan="8" style="text-align: right;"><b>Other Charges</b></td>
-                <td style="text-align: right;"><?=$other_charges_amt?></td>
-            </tr>
-            <tr>
-                <td colspan="8" style="text-align: right;">
+                <td colspan="8" style="text-align: right;border:none">
                 <?php   
                 $discount_type = '';
                  if(!empty($discount_on_all_type)){
@@ -177,20 +177,30 @@ body{
                             $discount_type = 'Rs';
                         }
                     }?>
-                <b>Discount (<?=$discount_on_all_input." ".$discount_type?>)</b></td>
-                <td style="text-align: right;"><?=$discount_on_all_amt?></td>
+                Discount (<?=$discount_on_all_input." ".$discount_type?>)</td>
+                <td colspan="2" style="text-align: right;"><?=number_format($discount_on_all_amt,2)?></td>
+            </tr>
+            <?php endif;?>
+            <?php $tax_per = $tax/2 ?>
+            <tr>
+                <td colspan="8" style="text-align: right;border:none">CGST <?=$tax_per?>%</td>
+                <td colspan="2" style="text-align: right;"><?=number_format($tax_amt_cgst,2)?></td>
+            </tr>
+            <tr>
+                <td colspan="8" style="text-align: right;border:none">SGST <?=$tax_per?>%</td>
+                <td colspan="2" style="text-align: right;"><?=number_format($tax_amt_sgst,2)?></td>
             </tr>
             <?php
                 if(!empty($round_off)){
                     echo '<tr>
-                    <td colspan="8" style="text-align: right;"><b>Round Off</b></td>
-                    <td style="text-align: right;">'.$round_off.'</td>
+                    <td colspan="8" style="text-align: right;border:none">Round Off</td>
+                    <td colspan="2" style="text-align: right;">'.number_format($round_off,2).'</td>
                     </tr>';
                 }
             ?>
             <tr>
-                <td colspan="8" style="text-align: right;"><b>Grand Total</b></td>
-                <td style="text-align: right;"><?=round($grand_total)?></td>
+                <td colspan="8" style="text-align: right;"><b>Invoice Total</b></td>
+                <td colspan="2" style="text-align: right;"><?=number_format($grand_total,2)?></td>
             </tr>
             <tr>
                 <td colspan="10">
@@ -230,24 +240,24 @@ body{
       ?>
                 </td>
             </tr>
-
-            <tr>
-                <td colspan="5" style="height:100px;">
-                <b>Customer Signature</b>
-                    <br>
-                </td>
-                <td colspan="5" style="height:100px;">
-                <b>Authorised Signature</b>
-                    <br>
-                </td>
-            </tr>
-            <?php if(!empty($sales_invoice_footer)) {?>
+            <?php if(!empty($invoice_footer)) {?>
             <tr style="border-top: 1px solid;">
-            <td colspan="10" style="text-align: center;">
-                <b><?= $sales_invoice_footer; ?></b>
+            <td colspan="10" style="text-align: left;padding:5px;font-size:14px;">
+                <b>Terms & Conditions</b><br>
+                <?=$invoice_footer;?>
             </td>
             </tr>
             <?php } ?>
+            <tr>
+                <td colspan="5" style="height:100px;width:50%;text-align:center">
+                    <br><br><br>
+                <b>Customer Signature</b>
+                </td>
+                <td colspan="5" style="height:100px;width:50%;text-align:center">
+                <br><br><br>
+                <b>Authorised Signature</b>
+                </td>
+            </tr>
         </tfoot>
     </table>
 </body>

@@ -146,7 +146,26 @@ class Tax extends Controller{
             $row[] = $tax['tax_name'];
             $row[] = $tax['tax_description'];
             $url = PUBLIC_ROOT.'tax/update/'.$tax['tax_id'];
-            $row[] = "<a href='#' class='row-del' onclick='delete_tax(\"". $tax["tax_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
+            // $row[] = "<a href='#' class='row-del' onclick='delete_tax(\"". $tax["tax_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="'.$url.'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>
+                </li>';
+
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_sales(\''.$tax["tax_id"].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i>Delete
+                    </a>
+                </li>
+                
+            </ul>
+        </div>';		
+
+        $row[] = $str2;
 
             $data[] = $row;
         }

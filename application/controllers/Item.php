@@ -68,7 +68,7 @@ class Item extends Controller{
     {
         $itemFields = ['item_id', 'item_name', 'category_id', 'unit_id', 'minimum_qty','purchase_price','expire_date', 'profit_margin','sales_price','final_price','stock_qty','description','new_opening_stock','opening_stock_description'];
         $createdDate = date('Y-m-d');
-        $createdBy = Session::getUserRole();
+        $createdBy = Session::getUsername();
         $fields = [];
         foreach($itemFields as $field){
             if($field == 'minimum_qty' || $field == 'profit_margin' || $field == 'sales_price' || $field == 'final_price' || $field == 'stock_qty' || $field == 'new_opening_stock'){
@@ -125,7 +125,7 @@ class Item extends Controller{
         $result = $this->itemModel->removeItemFromTable($id);
 
         if(is_string($result)){
-            echo "Sorry! Can't Delete, Item Name {".$result."} already in use in Items!";
+            echo "Sorry! Can't Delete, Item Name (".$result.") already in use in Sales!";
         }else if(!$result)
         {
             echo 'failed';
@@ -205,7 +205,26 @@ class Item extends Controller{
                 $row[] = $item[$column];
             }
             $url = PUBLIC_ROOT.'item/update/'.$item['item_id'];
-            $row[] = "<a href='#' class='row-del' onclick='delete_item(\"". $item["item_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
+            
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="item/update/'.$item['item_id'].'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>    
+                </li>';
+
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_item(\''.$item['item_id'].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i>Delete
+                    </a>
+                </li>
+                    
+                </ul>
+            </div>';			
+
+            $row[] = $str2;
 
             $data[] = $row;
         }

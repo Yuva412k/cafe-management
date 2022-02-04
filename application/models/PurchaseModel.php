@@ -49,6 +49,7 @@ class PurchaseModel extends Model
                 return $this->error;
             }
         }
+        $this->db->beginTransaction();
         $amount = $fields['amount'];
         $payment_type = $fields['payment_type'];
         $payment_note = $fields['payment_note'];
@@ -108,30 +109,40 @@ class PurchaseModel extends Model
 
             if (isset($_REQUEST['tr_item_id_' . $i]) && !empty($_REQUEST['tr_item_id_' . $i])) {
                 $item_id = $_REQUEST['tr_item_id_' . $i];
-                $purchase_qty = $_REQUEST['td_data_qty_' . $i];
-                $per_unit_price = $_REQUEST['td_data_per_unit_price_' . $i];
-                $unit_total_cost = $_REQUEST['td_data_tot_unit_cost_' . $i];
-                $total_cost = $_REQUEST['td_data_total_cost_' . $i];
+                $purchase_qty = (float)$_REQUEST['td_data_qty_' . $i];
+                $per_unit_price = (float)$_REQUEST['td_data_per_unit_price_' . $i];
+                $unit_total_cost =(float) $_REQUEST['td_data_tot_unit_cost_' . $i];
+                $total_cost = (float)$_REQUEST['td_data_total_cost_' . $i];
                 $discount_type = $_REQUEST['item_discount_type_' . $i];
-                $discount_input = $_REQUEST['td_data_discount_input_' . $i];
-                $discount_amt = $_REQUEST['td_data_discount_amt_' . $i]; //Amount
+                $discount_input = (float)$_REQUEST['td_data_discount_input_' . $i];
+                $discount_amt = (float)$_REQUEST['td_data_discount_amt_' . $i]; //Amount
                 $discount_amt_per_unit = $discount_amt / $purchase_qty;
 
                 $single_unit_total_cost = $per_unit_price;
 
                 $single_unit_total_cost -= $discount_amt_per_unit;
 
-                if ($discount_input == '' || $discount_input === 0) {
-                    $discount_input = null;
+                if ($discount_input == '' || $discount_input == 0) {
+                    $discount_input = NULL;
                 }
-                if ($total_cost == '' || $total_cost === 0) {
-                    $total_cost = null;
+                if ($total_cost == '' || $total_cost == 0) {
+                    $total_cost = NULL;
                 }
 
                 $purchase_status = $fields['purchase_status'];
                 $purchase_id = $fields['purchase_id'];
-                $query = "INSERT INTO purchaseitems SET purchase_id='$purchase_id', purchase_status='$purchase_status', item_id='$item_id', purchase_qty='$purchase_qty', price_per_unit='$per_unit_price', discount_type='$discount_type', discount_amt='$discount_amt', discount_input='$discount_input', unit_total_cost='$unit_total_cost', total_cost='$total_cost'";
+                $query = "INSERT INTO purchaseitems SET purchase_id=:purchase_id , purchase_status=:purchase_status , item_id=:item_id , purchase_qty=:purchase_qty , price_per_unit=:price_per_unit , discount_type=:discount_type , discount_amt=:discount_amt , discount_input=:discount_input , unit_total_cost=:unit_total_cost , total_cost=:total_cost";
                 $this->db->prepare($query);
+                $this->db->bindValue(':purchase_id', $purchase_id);
+                $this->db->bindValue(':purchase_status', $purchase_status);
+                $this->db->bindValue(':item_id', $item_id);
+                $this->db->bindValue(':purchase_qty', $purchase_qty);
+                $this->db->bindValue(':price_per_unit', $per_unit_price);
+                $this->db->bindValue(':discount_type', $discount_type);
+                $this->db->bindValue(':discount_amt', $discount_amt);
+                $this->db->bindValue(':discount_input', $discount_input);
+                $this->db->bindValue(':unit_total_cost', $unit_total_cost);
+                $this->db->bindValue(':total_cost', $total_cost);
                 $this->db->execute();
 
                 $result = $this->itemModel->updateItemsQuantity($item_id);
@@ -163,6 +174,7 @@ class PurchaseModel extends Model
         if (!$updatePurchasePaymentStatus) {
             return false;
         }
+        $this->db->commit();
         return true;
     }
 
@@ -177,16 +189,16 @@ class PurchaseModel extends Model
         $query .= ' as a, supplier as b WHERE b.supplier_id=a.supplier_id';
 
         $start = 0;
-        foreach ($this->columnOrder as $item) {
+        foreach ($this->dbColumnOrder as $item) {
 
             if (!empty($_POST['search']['value'])) {
-                if ($start === 0) {
+                if ($start == 0) {
                     $query .= ' OR ( ' . $item . " LIKE '%" . $_POST['search']['value'] . "%'";
                 } else {
                     $query .= ' OR ' . $item . " LIKE '%" . $_POST['search']['value'] . "%'";
                 }
 
-                if (count($this->columnOrder) - 1 === $start) {
+                if (count($this->dbColumnOrder) - 1 == $start) {
                     $query .= ')';
                 }
             }
@@ -199,7 +211,7 @@ class PurchaseModel extends Model
             }else{
                 $query .= ' ORDER BY ' . $this->dbColumnOrder[$_POST['order']['0']['column']] . ' ';
             }
-            $query .= ($_POST['order']['0']['dir'] === 'desc') ? 'DESC' : 'ASC';
+            $query .= ($_POST['order']['0']['dir'] == 'desc') ? 'DESC' : 'ASC';
         } else {
             $query .= ' ORDER BY ' . $this->order[0] . " " . $this->order[1];
         }
@@ -286,6 +298,7 @@ class PurchaseModel extends Model
         return $result;
     }
 
+    
     /**
      * Find Item details
      */
@@ -382,7 +395,6 @@ class PurchaseModel extends Model
         $this->db->prepare($query);
         $this->db->execute();
         $purchase = $this->db->fetchAllAssociative();
-
         $rowcount = 1;
         $info = array();
         foreach ($purchase as $s1) {
@@ -415,17 +427,17 @@ class PurchaseModel extends Model
         <tr id="row_<?= $rowcount ?>" data-row='<?= $rowcount ?>'>
 
             <!--Item Name -->
-            <td id="td_<?= $rowcount ?>_1" width="50%">
-                <input type="text" placeholder="Type or click to select an item." value="<?= $item_name ?>" id="td_data_<?= $rowcount ?>_1">
+            <td id="td_<?= $rowcount ?>_1" width="40%">
+                <input type="text" style="text-align: left;" value="<?= $item_name ?>" id="td_data_<?= $rowcount ?>_1">
             </td>
             <!-- Quantity -->
             <td id="td_qty_<?= $rowcount ?>">
-                <input type="text" onkeyup="calculateQty(<?= $rowcount ?>)" name="td_data_qty_<?= $rowcount ?>" id="td_data_qty_<?= $rowcount ?>" value="<?= $purchase_qty ?>">
+                <input type="number" onchange="calculateQty(<?= $rowcount ?>)" style="text-align: left;" name="td_data_qty_<?= $rowcount ?>" id="td_data_qty_<?= $rowcount ?>" value="<?= $purchase_qty ?>">
             </td>
 
             <!-- Unit Cost -->
             <td id="td_tot_unit_cost_<?= $rowcount ?>_3">
-                <input type="item_rate" onkeyup="calculate_amount(<?= $rowcount; ?>)" id="td_data_tot_unit_cost_<?= $rowcount ?>" name="td_data_tot_unit_cost_<?= $rowcount ?>" value="<?= $item_purchase_price; ?>">
+                <input type="text" class="number" onkeyup="calculate_amount(<?= $rowcount; ?>)"id="td_data_tot_unit_cost_<?= $rowcount ?>" name="td_data_tot_unit_cost_<?= $rowcount ?>" value="<?= $item_purchase_price; ?>">
             </td>
 
             <!-- Discount  -->
@@ -456,7 +468,7 @@ class PurchaseModel extends Model
 
             <!-- Remove Button -->
             <td id="td_btn_<?= $rowcount ?>">
-                <a id="td_data_<?= $rowcount ?>_16" name="td_data_<?= $rowcount ?>_16">-</a>
+                <a id="td_data_<?= $rowcount ?>_16" name="td_data_<?= $rowcount ?>_16" onclick="removerow(<?=$rowcount?>)" style="background-color:crimson;padding:5px;border: 1px solid red;cursor:pointer"><i class="fas fa-minus"></i></a>
             </td>
 
             <input type="hidden" id="td_data_per_unit_price_<?= $rowcount; ?>" name="td_data_per_unit_price_<?= $rowcount; ?>" value="<?= $item_purchase_price; ?>">
@@ -520,7 +532,7 @@ class PurchaseModel extends Model
     public function savePayment($fields)
     {
         extract($fields);
-
+        $this->db->beginTransaction();
         if ($amount == '' || $amount == 0) {
             $amount = null;
         }
@@ -556,12 +568,13 @@ class PurchaseModel extends Model
         if (!$query2) {
             return false;
         }
+        $this->db->commit();
         return true;
     }
 
     public function invoiceDetails($purchase_id)
     {
-        $purchase_info_query = "SELECT a.supplier_name, a.mobile, a.supplier_gstin, a.address, a.city, a.state, a.country, b.purchase_date, b.purchase_id, b.purchase_time, b.reference_no, b.purchase_status, b.tax_amt_cgst, b.tax_amt_sgst ,COALESCE(b.grand_total,0) AS grand_total, COALESCE(b.sub_total, 0) AS sub_total, COALESCE(b.paid_amount, 0) AS paid_amount,COALESCE(b.other_charges_input, 0) AS other_charges_input, b.other_charges_type, COALESCE(b.other_charges_amt,0) AS other_charges_amt, COALESCE(b.discount_on_all_input,0) AS discount_on_all_input, COALESCE(b.discount_on_all_amt,0) AS discount_on_all_amt,b.discount_on_all_type, COALESCE(b.round_off,0) AS round_off, c.tax, b.payment_status FROM supplier AS a, purchase AS b, tax as c WHERE a.`supplier_id`=b.`supplier_id` AND b.`purchase_id`='$purchase_id' AND b.`tax_id`=c.`tax_id`";
+        $purchase_info_query = "SELECT a.supplier_name, a.mobile, a.supplier_gstin, a.address, a.city, a.state, a.country, b.purchase_date, b.purchase_id, b.purchase_time, b.reference_no, b.purchase_status, b.tax_amt_cgst, b.tax_amt_sgst, c.tax ,COALESCE(b.grand_total,0) AS grand_total, COALESCE(b.sub_total, 0) AS sub_total, COALESCE(b.paid_amount, 0) AS paid_amount,COALESCE(b.other_charges_input, 0) AS other_charges_input, b.other_charges_type, COALESCE(b.other_charges_amt,0) AS other_charges_amt, COALESCE(b.discount_on_all_input,0) AS discount_on_all_input, COALESCE(b.discount_on_all_amt,0) AS discount_on_all_amt,b.discount_on_all_type, COALESCE(b.round_off,0) AS round_off, c.tax, b.payment_status FROM supplier AS a, purchase AS b, tax as c WHERE a.`supplier_id`=b.`supplier_id` AND b.`purchase_id`='$purchase_id' AND b.`tax_id`=c.`tax_id`";
         $this->db->prepare($purchase_info_query);
         $this->db->execute();
         $purchase_info = $this->db->fetchAllAssociative();
@@ -581,6 +594,7 @@ class PurchaseModel extends Model
 
     public function removePurchaseFromTable($ids)
     {
+        $this->db->beginTransaction();
         //Find the supplier id 
         $query = "SELECT supplier_id, purchase_id FROM purchase WHERE purchase_id IN ($ids)";
 
@@ -634,17 +648,19 @@ class PurchaseModel extends Model
                 return false;
             }
         }
+        $this->db->commit();
         return true;
     }
 
     public function deletePayments($payment_id)
     {
-        $query1 = "SELECT purchase_id FROM purchasepayments WHERE id=$payment_id";
+        $this->db->beginTransaction();
+        $query1 = "SELECT purchase_id FROM purchasepayments WHERE id='$payment_id'";
         $this->db->prepare($query1);
         $this->db->execute();
         $purchase_id = $this->db->fetchAssociative()['purchase_id'];
 
-        $query2 = "SELECT supplier_id FROM purchase WHERE purchase_id=$purchase_id";
+        $query2 = "SELECT supplier_id FROM purchase WHERE purchase_id='$purchase_id'";
         $this->db->prepare($query2);
         $this->db->execute();
         $supplier_id = $this->db->fetchAssociative()['supplier_id'];
@@ -655,19 +671,255 @@ class PurchaseModel extends Model
         $res2 = $this->updatePurchasePaymentStatus($purchase_id, $supplier_id);
 
         if ($res1 && $res2) {
+            $this->db->commit();
             return true;
         } else {
+            $this->db->rollBack();
             return false;
         }
     }
+
+
+
+    public function showPayNowModal($purchase_id)
+    {
+        $q1 = "SELECT * FROM purchase WHERE purchase_id='$purchase_id'";
+        $this->db->prepare($q1);
+        $this->db->execute();
+        $r1 = $this->db->fetchAssociative();
+        $supplier_id = $r1['supplier_id'];
+        $q2 = "SELECT * FROM supplier WHERE supplier_id='$supplier_id'";
+        $this->db->prepare($q2);
+        $this->db->execute();
+        $r2 = $this->db->fetchAssociative();
+
+        $supplier_name = $r2['supplier_name'];
+        $supplier_mobile = $r2['mobile'];
+        $supplier_gstin = $r2['supplier_gstin'];
+        $supplier_address = $r2['address'];
+        $supplier_state = $r2['state'];
+        $supplier_pincode = $r2['pincode'];
+        $supplier_opening_balance = $r2['opening_balance'];
+
+        $purchase_date = $r1['purchase_date'];
+        $reference_no = $r1['reference_no'];
+        $purchase_id = $r1['purchase_id'];
+        $grand_total = $r1['grand_total'];
+        $paid_amount = $r1['paid_amount'];
+        $due_amount = $grand_total - $paid_amount;
+
+        
+        ?>
+         <!-- The Modal -->
+    <div id="view_modal" class="modal">
+
+<!-- Modal content -->
+<div class="modal-content">
+    <div class="modal-header">
+    <span class="close">&times;</span>
+    <h2> Pay Now</h2>
+    </div>
+    <div class="modal-body">
+        <h4>Supplier Details</h4><br>
+        <div class="modal-row" style="justify-content:center">
+            <div class="modal-col" style="width: 200px;">
+                <address>
+                    <strong><?php echo $supplier_name; ?></strong><br>
+                    <?php echo (!empty(trim($supplier_mobile))) ? "Mobile : $supplier_mobile <br>" : '';?>
+                    <?php echo (!empty(trim($supplier_address))) ? "Address :$supplier_address <br> $supplier_state" : '';?>
+                    <?php echo (!empty(trim($supplier_gstin))) ? "GST NO: ".$supplier_gstin."<br>" : '';?>
+                </address>
+            </div>
+            <div class="modal-col" style="width: 200px;">
+            <h4>Purchase Details</h4><br>
+                <address>
+                   <b>Invoice No: <?php echo $purchase_id;?></b><br>
+                   <b>Date : <?php echo $purchase_date?></b><br>
+                   <b>Grand Total: <?php echo $grand_total;?></b><br>
+                </address>
+            </div>
+            </div>
+            <div class="modal-row" style="align-items: flex-start;flex-direction:column;margin-top:10px;">
+            <b>Paid Amount : <span><?=number_format($paid_amount,2);?></span></b>
+            <b>Due Amount  : <span  id='due_amount_temp'><?=number_format($due_amount,2);?></span></b>
+            </div>
+        <br>
+        <div class="modal-row" style="width: 100%;justify-content:center">
+            <div class="" style="width: 95%;">
+		        <input type="hidden" name="payment_row_count" id='payment_row_count' value="1">
+                <div class="modal-row" style="justify-content: space-between;">
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                        <label for="payment_date">Date</label>
+                        <div class="validate-input" style="width: 90%" data-validate='Date is required'>
+                            <input type="date" style="width: 100%;margin:5px" class="req-input" value="<?=date("Y-m-d");?>" id="payment_date" name="payment_date" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                        <label for="amount">Amount</label>
+                        <div class="validate-input" style="width: 90%" data-validate="Amount is required">
+                            <input type="text" style="width: 100%;margin:5px" class="req-input"  id="amount" name="amount" data-due-amt='<?=print $due_amount;?>' value="<?=number_format($due_amount,2,'.','');?>" >
+                        </div>
+                    </div>
+                    <div class="modal-col" style="flex-basis: 120px;flex-grow: 1;">
+                    <label for="payment_type">Payment Type</label>
+                    <div class="validate-input" style="width: 90%" data-validate="Payment type is required">
+
+                        <select name="payment_type" style="width: 100%;margin:5px" id="payment_type" class="req-input">
+                        <?php
+                     $q4 = "SELECT * FROM paymenttype";
+                     $this->db->prepare($q4);
+                     $this->db->execute();
+                     $paymenttypeData = $this->db->fetchAllAssociative();
+                     foreach($paymenttypeData as $row){
+                         echo "<option value='".$row['paymenttype_id']."'>".$row['paymenttype_name']."</option>";
+                        }
+                        ?>
+                        </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-col" style="width:100%">
+                    <label for="payment_note">Payment Note</label>
+                    <textarea type="text" style="width: 100%;margin:5px;height:60px;" id="payment_note" name="payment_note" placeholder="" ></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="height:50px">
+    <button type="button" id="button" onclick="save_payment('<?=$purchase_id;?>')" style="background-color: #5240a8;float:right">Save</button>
+    </div>
+</div>
+
+        <?php
+    }
+
+
+    public function viewPaymentModal($purchase_id)
+    {
+        $q1 = "SELECT * FROM purchase WHERE purchase_id='$purchase_id'";
+        $this->db->prepare($q1);
+        $this->db->execute();
+        $r1 = $this->db->fetchAssociative();
+
+        $supplier_id = $r1['supplier_id'];
+        $q2 = "SELECT * FROM supplier WHERE supplier_id='$supplier_id'";
+        $this->db->prepare($q2);
+        $this->db->execute();
+        $r2 = $this->db->fetchAssociative();
+
+        
+        $supplier_name = $r2['supplier_name'];
+        $supplier_mobile = $r2['mobile'];
+        $supplier_gstin = $r2['supplier_gstin'];
+        $supplier_address = $r2['address'];
+        $supplier_state = $r2['state'];
+        $supplier_pincode = $r2['pincode'];
+        $supplier_opening_balance = $r2['opening_balance'];
+
+        $purchase_date = $r1['purchase_date'];
+        $reference_no = $r1['reference_no'];
+        $purchase_id = $r1['purchase_id'];
+        $grand_total = $r1['grand_total'];
+        $paid_amount = $r1['paid_amount'];
+        $due_amount = $grand_total - $paid_amount;
+
+        ?>
+                <!-- The Modal -->
+    <div id="view_modal" class="modal">
+
+<!-- Modal content -->
+<div class="modal-content">
+    <div class="modal-header">
+    <span class="close">&times;</span>
+    <h2>View Payments</h2>
+    </div>
+    <div class="modal-body">
+        <div class="modal-row" style="justify-content: center;">
+            <div class="modal-col" style="width: 200px;">
+        <h4>Supplier Details</h4><br>
+                <address>
+                    <strong><?php echo $supplier_name; ?></strong><br>
+                    <?php echo (!empty(trim($supplier_mobile))) ? "Mobile : $supplier_mobile <br>" : '';?>
+                    <?php echo (!empty(trim($supplier_address))) ? "Address :$supplier_address <br> $supplier_state" : '';?>
+                    <?php echo (!empty(trim($supplier_gstin))) ? "GST NO: ".$supplier_gstin."<br>" : '';?>
+                </address>
+            </div>
+            <div class="modal-col" style="width: 200px;">
+            <h4>Purchase Details</h4><br>
+                <address>
+                   <b>Invoice No: <?php echo $purchase_id;?></b><br>
+                   <b>Date : <?php echo $purchase_date?></b><br>
+                   <b>Grand Total: <?php echo $grand_total;?></b><br>
+                </address>
+            </div>
+            </div>
+           
+            <div class="modal-row" style="width: 100%;">
+                    <br>
+                <table class="table" style="width: 100%;">
+                    <thead>
+                    <tr class="bg-primary">
+                    <th>#</th>
+                    <th>Payment Date</th>
+                    <th>Payment</th>
+                    <th>Payment Type</th>
+                    <th>Payment Note</th>
+                    <th>Created by</th>
+                    <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        $q5 = "SELECT * FROM purchasepayments WHERE purchase_id='$purchase_id' and payment>0";
+                        $i = 1;
+                        $str = '';
+                        $this->db->prepare($q5);
+                        $this->db->execute();
+                        if($this->db->countRows() > 0){
+                            $res = $this->db->fetchAllAssociative();
+                            foreach($res as $res1){
+                                echo "<tr>";
+                                echo "<td>".$i++."</td>";
+                                echo "<td>".$res1['payment_date']."</td>";
+                                echo "<td>".number_format($res1['payment'],2)."</td>";
+                                echo "<td>".$res1['payment_type']."</td>";
+                                echo "<td>".$res1['payment_note']."</td>";
+                                echo "<td>".$res1['created_by']."</td>";
+                                echo "<td><a onclick='delete_purchase_payment(".$res1['id'].")' style='color:crimson;cursor:pointer;' ><i class='fa fa-trash'></i></a></td>";	
+                                echo "</tr>";
+                            }
+                        }else{
+                            echo "<tr><td colspan='7' style='text-align:center'>No Records Found</td></tr>";
+                        }
+                    ?>
+                </tbody>
+                </table>
+            </div>
+        <br>
+    <div class="modal-footer" style="height:50px">
+    <div class="modal-row" style="align-items: flex-end;flex-direction:column;">
+            <b>Paid Amount : <span><?=number_format($paid_amount,2);?></span></b>
+            <b>Due Amount  : <span><?=number_format($due_amount,2);?></span></b>
+            </div>
+
+    </div>
+</div>
+
+ 
+        <?php
+    }
+
 
     /**
      * Generate new Purchase id
      */
     public function createPurchaseID()
     {
-        //TODO PREFIX FOR CUSTOMER FROM SETTING OR SOMETHING
-        $prefix = 'PR';
+        $this->db->prepare("SELECT purchase_prefix FROM shopdetails");
+        $this->db->execute();
+        $prefix = $this->db->fetchAssociative()['purchase_prefix'];
         //Create suppliers unique Id
         $query = "SELECT COALESCE(MAX(id), 0)+1 AS maxid FROM purchase";
         $this->db->prepare($query);

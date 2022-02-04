@@ -15,27 +15,24 @@ if(!isset($tax_name)){
             <?php include_once APP.'views/common/flashdata.php'?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <form  name='tax-form' id='tax-form'>
+            <form  name='tax-form' class="validate-form" id='tax-form'>
                 <div class="header">
                     <div class="item-pair">
                         <label for="tax_name">Tax Name <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="tax_name" style="width: 100%;" value="<?php print $tax_name; ?>"  id="tax_name" autofocus>
-                        <span id="tax_name_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input"  data-validate="Tax name is required">
+                        <input type="text" class="req-input" name="tax_name" style="width: 100%;" value="<?php print $tax_name; ?>"  id="tax_name" autofocus>
                         </div>
                     </div>
                     <div class="item-pair">
                         <label for="item_id">Tax ID <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="tax_id" style="width: 100%;" id="tax_id" value="<?php print $tax_id; ?>">
-                        <span id="tax_id_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input"  data-validate="Tax id is required">
+                        <input type="text" class="req-input" name="tax_id" style="width: 100%;" id="tax_id" readonly value="<?php print $tax_id; ?>">
                         </div>
                     </div>
                     <div class="item-pair">
-                        <label for="tax">Tax <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="tax" style="width: 100%;" value="<?php print $tax_name; ?>"  id="tax">
-                        <span id="tax_msg" class='required'></span>
+                        <label for="tax">Tax Value<sup style="color: red">*</sup></label>
+                        <div style="width:60%" class="validate-input"  data-validate="Tax value is required">
+                        <input type="text" class="req-input number" name="tax" style="width: 100%;" value="<?php print $tax_name; ?>"  id="tax">
                         </div>
                     </div>
                     <div class="item-pair" style="display: flex;align-items: center;">
@@ -61,11 +58,11 @@ if(!isset($tax_name)){
                         ?>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
+                    <div class="btn"><a href="<?php echo PUBLIC_ROOT.'tax' ?>" id='button'>Cancel</a></div>
                     <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
                 </div>
             </form>
             <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT; ?>">

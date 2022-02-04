@@ -1,6 +1,5 @@
 <?php
 
-use app\application\controllers\Purchase;
 use app\core\Session;
 ?>
 <section class="wrapper">
@@ -12,32 +11,37 @@ use app\core\Session;
         <?php include_once APP.'views/common/flashdata.php'?>
     <!--FLASH MESSAGE END -->
         <div class="box-wrapper">
-            <div class="box" style="background-color: #f492a0;">
+            <div class="box">
                 <div class="box-icon">
+                    <i class="fas fa-cart-plus" style="color:var(--icon-color1);"></i>
                 </div>
                 <div class="box-content">
                     <h3>₹<strong class="counter"><?=number_format($today_total_sales,2)?></strong></h3>
                     <span>Today Total Sales</span>
                 </div>
             </div>
-            <div class="box" style="background-color: #feb161">
+            <div class="box">
                 <div class="box-icon">
-                </div>
-                <div class="box-content">
-                    <h3>₹<strong class="counter"><?=number_format($today_total_purchase,2)?></strong></h3>
-                    <span>Today Total Purchase</span>
-                </div>
-            </div>
-            <div class="box" style="background-color:#9194ce">
-                <div class="box-icon">
+                    <i class="fas fa-cart-arrow-down" style="color:var(--icon-color2);"></i>
                 </div>
                 <div class="box-content">
                     <h3>₹<strong class="counter"><?=number_format($today_total_sales_due,2)?></strong></h3>
                     <span>Today Sales Due</span>
                 </div>
             </div>
-            <div class="box" style="background-color:#3e479b">
+            <div class="box">
                 <div class="box-icon">
+                    <i class="fas fa-shipping-fast" style="color:var(--icon-color3);"></i>
+                </div>
+                <div class="box-content">
+                    <h3>₹<strong class="counter"><?=number_format($today_total_purchase,2)?></strong></h3>
+                    <span>Today Total Purchase</span>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="box-icon">
+                    <i class="fas fa-truck" style="color:var(--icon-color4);"></i>
                 </div>
                 <div class="box-content">
                     <h3>₹<strong class="counter"><?=number_format($today_total_purchase_due,2)?></strong></h3>
@@ -45,108 +49,70 @@ use app\core\Session;
                 </div>
             </div>
         </div>
-
+<br><br>
         <div class="content-container">
             <div class="myChart">
                 <canvas id="barChart" height="300" width="500"></canvas>
             </div>
-    
-            <div class="box-wrapper small">
-                <div class="box" style="background-color:#3e479b">
-                    <div class="small-box">
-                        <div class="box-content">
-                            <h1 class="counter"><?=$total_customers?></h1>
-                            <span>CUSTOMERS</span>
-                        </div>
-                        <div class="box-icon"></div>
-                    </div>
-                    <a href="#">View</a>
-                </div>
-                <div class="box" style="background-color:#9194ce">
-                    <div class="small-box">
-                        <div class="box-content">
-                            <h1 class="counter"><?=$total_suppliers?></h1>
-                            <span>SUPPLIERS</span>
-                        </div>
-                        <div class="box-icon"></div>
-                    </div>
-                    <a href="#">View</a>
-                </div>
-                <div class="box" style="background-color: #feb161">
-                    <div class="small-box">
-                        <div class="box-content">
-                            <h1 class="counter"><?=$total_purchase_count?></h1>
-                            <span>PURCHASE INVOICE</span>
-                        </div>
-                        <div class="box-icon"></div>
-                    </div>
-                    <a href="#">View</a>
-                </div>
-                <div class="box" style="background-color: #f492a0;">
-                    <div class="small-box">
-                        <div class="box-content">
-                            <h1 class="counter"><?=$total_sales_count?></h1>
-                            <span>SALES INVOICE</span>
-                        </div>
-                        <div class="box-icon"></div>
-                    </div>
-                    <a href="#">View</a>
-                </div>
-            </div>
+
 
             <div class="myChart pie">
-                <figure class="highcharts-figure">
-                    <div id="pieChart"></div>
-                </figure>    
+                <div id="pieChart"></div>
             </div>
     
-
-            <div class="table-container">
-                <div class="table-header">
-                    <h3>Recently Added Items</h3>
+    
+            <div class="box-wrapper small">
+                <div class="box" style="padding: 10px;height:50px"><h3>Daily Updates</h3></div>
+                <div class="box">
+                    <a href="#">
+                        <div class="box-content">
+                            <h1 class="counter"><?=$total_purchase_count?></h1>
+                            <span>Today Purchase Count</span>
+                        </div>
+                        <div class="box-icon"><i class="fas fa-truck" style="color:var(--icon-color4);"></i></div>
+                    </a>
                 </div>
-                <div class="table-content">
-                    <table id="mytable" class="table is-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>SL.No</th>
-                                <th>Item ID</th>
-                                <th>Item Name</th>
-                                <th>Item Sales Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                       <?php 
-                        $i = 1;
-                        foreach($recently_add_items as $items){
-                            echo "<tr>";
-                            echo "<td>".$i++."</td>";
-                            echo "<td>".$items['item_id']."</td>";
-                            echo "<td>".$items['item_name']."</td>";
-                            echo "<td>".number_format($items['sales_price'],2)."</td>";
-                            echo "</tr>";
-                        }
-                       ?>
-                        </tbody>
-                        <tfoot>
-                            <tr><td colspan="3"><a href="#">View All</a></td></tr>
-                        </tfoot>
-                    </table>
+                <div class="box">
+                    <a href="#">
+                        <div class="box-content">
+                            <h1 class="counter"><?=$total_sales_count?></h1>
+                            <span>Today Sales Count</span>
+                        </div>
+                        <div class="box-icon"><i class="fas fa-shopping-bag" style="color:var(--icon-color3);"></i></div>
+                    </a>
+                </div>
+                <div class="box">
+                    <a href="#">
+                        <div class="box-content">
+                            <h1 class="counter"><?=$total_customers?></h1>
+                            <span>Total Customer count</span>
+                        </div>
+                        <div class="box-icon"><i class="fas fa-users" style="color:var(--icon-color2);"></i></div>
+                    </a>
+                </div>
+                <div class="box" style="border: none;">
+                    <a href="#">
+                        <div class="box-content">
+                            <h1 class="counter"><?=$total_suppliers?></h1>
+                            <span>Total Supplier count</span>
+                        </div>
+                        <div class="box-icon"><i class="fas fa-id-badge" style="color:var(--icon-color1);"></i></div>
+                    </a>
                 </div>
             </div>
             <div class="table-container exp-table">
                 <div class="table-header">
-                    <h3>Expired Items</h3>
+                    <h3>Expired Products</h3>
                 </div>
                 <div class="table-content">
                     <table style="width: 100%" class="display table is-striped table-hover">
                         <thead>
                             <tr>
-                                <td>SL.No</td>
-                                <td>Item ID</td>
-                                <td>Item Name</td>
-                                <td>Category Name</td>
-                                <td>Expire Date</td>
+                                <th>#</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Category Name</th>
+                                <th>Expire Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -166,6 +132,41 @@ use app\core\Session;
                     </table>
                 </div>
             </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Recently Added Products</h3>
+                </div>
+                <div class="table-content">
+                    <table id="mytable" class="table is-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Sales Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                       <?php 
+                        $i = 1;
+                        foreach($recently_add_items as $items){
+                            echo "<tr>";
+                            echo "<td>".$i++."</td>";
+                            echo "<td>".$items['item_id']."</td>";
+                            echo "<td>".$items['item_name']."</td>";
+                            echo "<td>".number_format($items['sales_price'],2)."</td>";
+                            echo "</tr>";
+                        }
+                       ?>
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="4"><a href="<?php echo PUBLIC_ROOT.'item'?>" style="color:var(--text-color);font-weight:bolder;">View All</a></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+     
             <div class="table-container">
                 <div class="table-header">
                     <h3>Stock Alert</h3>
@@ -174,11 +175,11 @@ use app\core\Session;
                     <table style="width: 100%" class="display table is-striped table-hover">
                         <thead>
                             <tr>
-                                <td>SL.No</td>
-                                <td>Item ID</td>
-                                <td>Item Name</td>
-                                <td>Category Name</td>
-                                <td>Stock</td>
+                                <th>#</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Category Name</th>
+                                <th>Stock</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -262,8 +263,11 @@ use app\core\Session;
 
     ?>
       <script>
-        window.onload = function () {
-            let months = ["January", "Feburary","March","Apirl","May","June","July","August","September","October","November","December"]
+        $(document).ready(function () {
+            var r = document.querySelector(':root');
+            var rs = getComputedStyle(r);
+
+            let months = ["Jan", "Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
             const ctx = document.getElementById('barChart').getContext('2d');
 
             const labels = months;
@@ -319,37 +323,33 @@ use app\core\Session;
                     position: 'top',
                 },
                 title: {
+                    fontSize: 15.5,
                     display: true,
-                    text: 'Chart.js Bar Chart'
+                    text: 'Purchase And Sales',
                 }
                 }
             },
             };
+            Chart.defaults.color = rs.getPropertyValue("--box-text");
             var myChart = new Chart(ctx, config);
 
+            
         /****************PIE CHART******************/
-
-
-        const pieData = {
-            labels: ['Red', 'Orange', 'Yellow', 'Green', 'Blue'],
-            datasets: [
-                {
-                label: 'Dataset 1',
-                data: [ 30, 20, 10, 30, 10],
-                fill: true,
-                backgroundColor: ['Red', 'Orange', 'Yellow', 'Green', 'Blue'],
-                }
-            ]
-        };
     Highcharts.chart('pieChart', {
         chart: {
+            backgroundColor: null,
             plotBackgroundColor: null,
             plotBorderWidth: null,
             plotShadow: false,
+            height: '70%',
             type: 'pie'
         },
         title: {
-            text: 'Top 10 Selling Items'
+            text: 'Top 10 Selling Products',
+            style:{
+                color: rs.getPropertyValue("--box-text"),
+                fontSize: '15.5px',
+            }
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -359,18 +359,24 @@ use app\core\Session;
                 valueSuffix: '%'
             }
         },
+        exporting:{
+            enabled: false
+        },
         plotOptions: {
             pie: {
+                height: '70%',
+                size: '80%',
                 allowPointSelect: true,
                 cursor: 'pointer',
                 dataLabels: {
                     enabled: true,
+                    color: rs.getPropertyValue("--box-text"),
                     format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                }
+                },
             }
         },
         series: [{
-            name: 'Items',
+            name: 'Products',
             colorByPoint: true,
             data: [
                 <?php
@@ -385,7 +391,7 @@ use app\core\Session;
         }]
     });
 
-    }
+    });
         </script> 
           <!-- Counter -->
           <?php include_once APP.'/views/common/counter_js.php'?>

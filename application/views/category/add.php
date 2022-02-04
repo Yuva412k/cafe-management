@@ -5,7 +5,6 @@ if(!isset($category_name)){
     $category_name=$category_description="";
 }
 ?> 
-
 <section class="wrapper">
     <div class="content-wrapper">
         <div class="content-header">
@@ -15,20 +14,18 @@ if(!isset($category_name)){
             <?php include_once APP.'views/common/flashdata.php'?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <form  name='category-form' id='category-form'>
+            <form  name='category-form' class="validate-form" id='category-form'>
                 <div class="header">
                     <div class="item-pair">
                         <label for="category_name">Category Name <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="category_name" style="width: 100%;" value="<?php print $category_name; ?>"  id="category_name" autofocus>
-                        <span id="category_name_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input" data-validate="Category name is required">
+                        <input type="text" class="req-input" name="category_name" style="width: 100%;" value="<?php print $category_name; ?>"  id="category_name" autofocus>
                         </div>
                     </div>
                     <div class="item-pair">
                         <label for="item_id">Category ID <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="category_id" style="width: 100%;" id="category_id" value="<?php print $category_id; ?>">
-                        <span id="category_id_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input" data-validate="Category name is required">
+                        <input type="text" class="req-input" name="category_id" style="width: 100%;" id="category_id" readonly value="<?php print $category_id; ?>">
                         </div>
                     </div>
                     <div class="item-pair" style="display: flex;align-items: center;">
@@ -54,11 +51,11 @@ if(!isset($category_name)){
                         ?>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
+                    <div class="btn"><a href="<?php echo PUBLIC_ROOT.'category' ?>" id='button'>Cancel</a></div>
                     <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
                 </div>
             </form>
             <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT; ?>">

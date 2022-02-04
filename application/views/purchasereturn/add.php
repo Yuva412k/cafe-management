@@ -21,42 +21,53 @@
             <h2>Purchase</h2>
         </div>
         <div class="wrapper-container">
-            <form id="purchase-form" enctype="multipart/form-data">
+            <form id="purchase-form" class="validate-form" enctype="multipart/form-data">
                 <input type="hidden" name="hidden_rowcount" id="hidden_rowcount" value="1">
-                <input type="hidden" id="baseUrl" value="<?php echo PUBLIC_ROOT;?>">
+                <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT;?>">
                 <input type="hidden" value='0' id="hidden_update_rowid" name="hidden_update_rowid">
 
                 <div class="header">
                     <div class="item-pair">
                         <label for="supplier_id">Supplier Name <sup style="color: red">*</sup></label>
-                        <select name="supplier_id" id="supplier_id" style="width: 60%;">
+                        <div style="width: 60%;" class="validate-input" data-validate="Supplier Name is required">
+                        <select name="supplier_id" class="req-input" id="supplier_id" style="width: 100%;">
                         <?php
                             if($request_name == 'update' || $request_name == 'add'){
                                 echo '<option selected value="'.$supplier_id.'">'.$supplier_name.'</option>';
+                            }else{
+                                echo '<option value="">--Select Supplier--</option>';
                             }
                         ?>
                         </select>
+                        </div>
                     </div>
                     <div class="item-pair">
                         <label for="return_id">Return Id<sup style="color: red">*</sup></label>
-                        <input type="text" name="return_id" id="return_id" value="<?php print $return_id ?>" >
+                        <div style="width: 60%;" class="validate-input" data-validate="Return Id is required">
+                        <input type="text" class="req-input" style="width: 100%;" name="return_id" id="return_id" readonly value="<?php print $return_id ?>" >
+                        </div>
                     </div>
                     <?php
                     if(isset($purchase_id)):
                     ?>
                     <div class="item-pair">
                         <label for="purchase_id">Purchase Id<sup style="color: red">*</sup></label>
-                        <input type="text" name="purchase_id" id="purchase_id" value="<?php print $purchase_id ?>" >
+                        <div style="width: 60%;" class="validate-input" data-validate="Purchase Id is required">
+                        <input type="text" class="req-input" name="purchase_id"  style="width: 100%;"  id="purchase_id" readonly value="<?php print $purchase_id ?>" >
+                        </div>
                     </div>
                     <?php endif;?>
                     <div class="item-pair">
                         <label for="return_date">Purchase Date <sup style="color: red">*</sup></label>
-                        <input type="date" name="return_date" id="return_date" value="<?php print $return_date; ?>">
+                        <div style="width: 60%;" class="validate-input" data-validate="Purchase Date is required">
+                        <input type="date" class="req-input" style="width:100%" name="return_date" id="return_date" value="<?php print $return_date; ?>">
+                        </div>
                     </div>
 
                     <div class="item-pair">
                         <label for="return_status">Purchase Status <sup style="color: red">*</sup></label>
-                        <select name="return_status" id="return_status">
+                        <div style="width: 60%;" class="validate-input select" data-validate="Purchase Status is required">
+                        <select name="return_status" style="width: 100%;" class="req-input" id="return_status">
                            <?php
                             $selectreturn = '';
                             $selectcancel = '';
@@ -68,6 +79,7 @@
                             <option <?= $selectreturn?>value="return">Return</option>
                             <option <?= $selectcancel?> value="cancel">Cancel</option>
                         </select>
+                        </div>
                     </div>
                     <div class="item-pair">
                         <label for="reference_no">Reference No</label>
@@ -75,15 +87,21 @@
                     </div>                
                     <div class="item-pair"></div>
                 </div>
-                <input type="text" placeholder="Item name or Itemcode" id="item_search" value="">
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
+                <br>
+                <div style="display: flex;justify-content:center;">
+                <label for="item_search" style="margin-right: 20px;">Select Product</label>
+                <input type="text" placeholder="Product name or Product code" id="item_search" style="flex-basis: 400px;" value="">
+                </div>
+                <br>
+                <hr style="background-color: var(--border-color);">
                 <br>
 
-                <div class="purchasereturn-table">
+                <div class="purchasereturn-table tb-h10">
                     <table style="width: 100%" id="purchasereturn_table">
                         <thead style="text-align: right !important;">
                             <tr>
-                                <th style="text-align: left !important;">ITEM NAME</th>
+                                <th style="text-align: left !important;">PRODUCT NAME</th>
                                 <th>QUANTITY</th>
                                 <th>RATE</th>
                                 <th>DISCOUNT</th>
@@ -96,13 +114,15 @@
                     </table>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
 
                 <div class="table-row">
-                    <div class="table-col">
+                    <div class="table-col" style="flex-basis: 400px;">
+                    <div class="" style="display: flex;flex-wrap:wrap">
+                    <div style="flex-grow:1;flex-basis:47%;margin-left:5px">
                     <span>Tax</span>
-                    <div>
-                    <select id="tax_id" name="tax_id">  
+                    <div style="width:100%" class="validate-input" data-validate="Tax type is required">
+                    <select class="select req-input" style="width: 100%;" id="tax_id" name="tax_id">  
                     <?php
                         foreach($taxData as $row){
                             $select = '';
@@ -116,127 +136,127 @@
                     ?>
                     </select>
                     </div>
+                    </div>
+                    <div style="flex-grow:1;flex-basis:47%;margin-left:5px">
+                    <span>Discount on All</span>
+                        <div>
+                            <input style="margin: 0;width:calc(100% - 50px)" class="total-disc number" type="text" name="discount_on_all_input" onkeyup="final_total()" id="discount_on_all_input" value="<?php print $discount_on_all_input ?? 0; ?>">
+                            <select class="select" id="discount_on_all_type" style="width: 45px;" name="discount_on_all_type">
+                            <?php 
+                            $selectPer = '';
+                            $selectRup = '';
+                            if($discount_on_all_type === 'percentage'){$selectPer = 'selected';}
+                            if($discount_on_all_type === 'rupee'){$selectRup = 'selected';}
+                            ?>
+                                <option <?=$selectPer?> value="percentage">%</option>
+                                <option <?=$selectRup?> value="rupee">Rs.</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="flex-grow:1;flex-basis:47%;margin-left:5px">
+                    <span>Other Charges</span>
+                        <div>
+                            <input style="margin: 0;width:calc(100% - 50px)" type="text" class="number" name="other_charges_input" id="other_charges_input" onkeyup="final_total()" value="<?php print $other_charges_input ?? 0?>">
+                            <select class="select" name="other_charges_type" style="width: 45px;" id="other_charges_type">
+                            <?php
+                            $selectPer = '';
+                            $selectRup = '';
+                            if($other_charges_type == 'percentage'){$selectPer = 'selected';}
+                            if($other_charges_type == 'rupee'){$selectRup = 'selected';}
+                            ?>
+                                <option <?=$selectPer?> value="percentage">%</option>
+                                <option <?=$selectRup?> value="rupee">Rs.</option>
+                            </select>
+                        </div>
+                    </div>
+                    </div>
                     <div class="payment_box">
                             <div class="payments_div">
                             <div class="box-body">
                                 <div class="row"></div>
-                            
-                                <div class="amount_div">
-                                        <label for="amount">Amount</label>
-                                        <div>
-                                        <input type="text" class="form-control text-right paid_amt only_currency" id="amount" name="amount" placeholder="" >
-                                        <span id="amount_msg"></span>
-                                        </div>
-                                </div>
                                 <div class="">
                                     <label for="payment_type">Payment Type</label>
-                                    <div>
-                                    <select id='payment_type' name="payment_type">
-                                        <?php
-                                            if($paymentData['length'] >0){
-                                            echo "<option value=''>-Select-</option>";
-                                                // foreach($paymentData as $res1){
-                                                echo "<option value='".$paymentData['payment_type']."'>".$paymentData['payment_type'] ."</option>";
-                                            // }
+                                    <div style="width:100%" class="validate-input" data-validate="Payment type is required">
+                                    <select style="width: 100%;" class="select req-input" id='payment_type' name="payment_type">
+                                    <?php
+                                        foreach($paymenttypeData as $row){
+                                            $select = '';
+                                            if(isset($paymenttype_id) && $paymenttype_id != ''){
+                                                if($row['paymenttype_id'] == $paymenttype_id){
+                                                    $select = 'selected';
+                                                }
                                             }
-                                            else{
-                                            echo "<option>None</option>";
-                                            }
-                                        ?>
+                                        echo "<option $select value='".$row['paymenttype_id']."'>".$row['paymenttype_name']."</option>";
+                                        }
+                                    ?>
                                     </select>
-                                    <span id="payment_type_msg" style="display:none" class="text-danger"></span>
                                     </div>
                                 </div>
+                                <div class="amount_div">
+                                        <label for="amount">Paid Amount</label>
+                                        <div style="width:100%">
+                                        <input onkeyup="calculate_balance()" type="text" class="number" style="width: 100%;" id="amount" name="amount" placeholder="" >
+                                        </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     </div>
-                    <div class="table-col">
-                        <div class="row">
-                            <div class="col">
-                                <span>Sub Total</span>
-                            </div>
-                            <div class="col rt">
-                                <span name="sub_total" id="sub_total" class="sub-total"><?php echo $sub_total ?? '0.00'?></span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>Discount on All</span>
-                                <div>
-                                    <input style="margin: 0;" class="total-disc" type="text" name="discount_on_all_input" onkeyup="final_total()" id="discount_on_all_input" value="<?php echo $discount_on_all_input ?? 0; ?>">
-                                    <select id="discount_on_all_type" name="discount_on_all_type">
-                                    <?php 
-                                    $selectPer = '';
-                                    $selectRup = '';
-                                    if($discount_on_all_type === 'percentage'){$selectPer = 'selected';}
-                                    if($discount_on_all_type === 'rupee'){$selectRup = 'selected';}
-                                    ?>
-                                        <option <?=$selectPer?> value="percentage">%</option>
-                                        <option <?=$selectRup?> value="rupee">Rs.</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col rt">
-                                <span id="discount_on_all_amt" name="discount_on_all_amt" class="total-discount"><?php echo $discount_on_all_amt ?? 0.00?></span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>Other Charges</span>
-                                <div>
-                                    <input style="margin: 0;" class="total-disc" type="text" name="other_charges_input" id="other_charges_input" onkeyup="final_total()" value="<?php echo $other_charges_input?? 0?>">
-                                    <select name="other_charges_type" id="other_charges_type">
-                                   <?php
-                                    $selectPer = '';
-                                    $selectRup = '';
-                                    if($other_charges_type === 'percentage'){$selectPer = 'selected';}
-                                    if($other_charges_type === 'rupee'){$selectRup = 'selected';}
-                                    ?>
-                                        <option <?=$selectPer?> value="percentage">%</option>
-                                        <option <?=$selectRup?> value="rupee">Rs.</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col rt">
-                                <span id="other_charges_amt" name="other_charges_amt" class="total-charges"><?php echo $other_charges_amt ?? '0.00'; ?></span>
-                            </div>
-                        </div>  
-                        <div class="row">
-                            <div class="col">
-                                <span>CGST <i class="tax_per"></i></span>
-                            </div>
-                            <div class="col rt">
-                                <span id="cgst_amt" name="cgst_amt" class=""><?php echo $tax_amt_cgst ?? 0.00;?></span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>SGST <i class="tax_per"></i></span>
-                            </div>
-                            <div class="col rt">
-                                <span id="sgst_amt" name="sgst_amt" class=""><?php echo $tax_amt_sgst ?? 0.00;?></span>
-                            </div>
-                        </div>
-                        <!-- Hidden total tax  -->
-                        <div class="row">
-                            <div class="col">
-                                <span>Round Off</span>
-                                <input type="checkbox" id="round_off" <?php if(isset($round_off) && $round_off != 0){echo "checked";}?>>
-                            </div>
-                            <div class="col rt">
-                                <span id="round_off_amt" name="round_off_amt" class=""><?php if(isset($round_off) && $round_off != 0){echo $round_off;}?></span>
-                            </div>
-                        </div>
-
-                        <div class="row" style="font-size: 20px;font-weight: bold;">
-                            <div class="col">
-                                <span>Grand Total</span>
-                            </div>
-                            <div class="col rt">
-                                <span name="grand_total" id="grand_total"><?php echo $grand_total ?? 0.00?></span>
-                            </div>
-                        </div>
+                    <div class="table-col" style="flex-basis: 400px;">
+                    <table class="total-table" style="width: 100%;height:100%">
+                        <tr>
+                            <td><span>Sub Total</span></td>
+                            <td>
+                            <span name="sub_total" id="sub_total" class="sub-total">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span>Discount on All</span></td>
+                            <td>
+                            <span id="discount_on_all_amt" name="discount_on_all_amt" class="total-discount">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span>Other Charges</span></td>
+                            <td>
+                            <span id="other_charges_amt" name="other_charges_amt" class="total-charges">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span>CGST <i class="tax_per"></i></span></td>
+                            <td>
+                                <span id="tax_amt_cgst" name="sgst_amt" class="">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span>SGST <i class="tax_per"></i></span></td>
+                            <td>
+                            <span id="tax_amt_sgst" name="sgst_amt" class="">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="round_off">Round Off
+                                <input type="checkbox" id="round_off" onclick="final_total()" checked>
+                                </label>
+                            </td>
+                            <td>
+                            <span id="round_off_amt" name="round_off_amt" class="">0.00</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h2>Grand Total</h2></td>
+                            <td>
+                            <h2 name="grand_total" id="grand_total">0.00</h2>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h4>Balance</h4></td>
+                            <td>
+                            <h4 id="balance_amt"></h4>
+                            </td>
+                        </tr>
+                    </table>
                     </div>
                 </div>
                 <?php 
@@ -258,11 +278,11 @@
                         ?>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
+                    <div class="btn"><a href="<?php echo PUBLIC_ROOT.'purchaseReturn' ?>" id='button'>Cancel</a></div>
                     <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
                 </div>
             </form>
         </div>
@@ -273,8 +293,14 @@
 <script src="<?php echo PUBLIC_ROOT.'Plugins/jquery-ui/jquery-ui.min.js'?>"></script>
 <script src="<?php echo PUBLIC_ROOT.'js/purchasereturn.js'?>"></script>
     <script>
+        function removerow(id){//id=Rowid
+           
+           $("#row_"+id).remove();
+           final_total();
+           }
+
           $(document).ready(function() {
-              base_url = $('#baseUrl').val();
+              base_url = $('#baseURL').val();
             $("#supplier_id").select2({
                 ajax:{
                     url: base_url+'/purchase/supplierAjax',
@@ -295,6 +321,10 @@
                 } 
             });  
         });
+        $('.select').select2();
+        $('.select').change(function(){
+            final_total();
+        })
     </script>
     <script>
          <?php if($request_name == "update"): ?> 
@@ -307,6 +337,7 @@
                   $('#purchasereturn_table tbody').append(result);
                   $("#hidden_rowcount").val(parseFloat(<?=$items_count;?>)+1);
                   $(".overlay").remove();
+                final_total();
               }); 
              });
          <?php endif;?>
@@ -322,11 +353,24 @@
                 $('#purchasereturn_table tbody').append(result);
                 $("#hidden_rowcount").val(parseFloat(<?=$items_count;?>)+1);
                 $(".overlay").remove();
+                final_total();
             }); 
             });
         <?php endif;?>
     </script>
     <script>    
+
+    function calculate_balance(){
+        amount= parseFloat($('#amount').val());
+        grand_total = parseFloat($('#grand_total').html());
+        tot = amount-grand_total;
+        $('#balance_amt').html(parseFloat(tot).toFixed(2));
+        if(tot<0){
+            $('#balance_amt').css('color','crimson');
+        }else{
+            $('#balance_amt').css('color','green');
+        }
+     }
 
     /*********Calculate Amount ***********/
     function calculate_amount(i){
@@ -444,17 +488,25 @@
                 subtotal_round=subtotalwithtax;
             }
 
+            if(round_off<0){
+            $('#round_off_amt').css('color','crimson');
+            }else{
+            $('#round_off_amt').css('color','green');
+            }
             $(".tax_per").html(per+'%');
-            $("#sgst_amt").html(parseFloat(sgst).toFixed(2));
-            $("#cgst_amt").html(parseFloat(cgst).toFixed(2));
+            $("#tax_amt_sgst").html(parseFloat(sgst).toFixed(2));
+            $("#tax_amt_cgst").html(parseFloat(cgst).toFixed(2));
             $('#round_off_amt').html(parseFloat(round_off).toFixed(2));
             $("#grand_total").html(parseFloat(subtotal_round).toFixed(2));
+            <?php if($request_name != 'update'){?>$("#amount").val(parseFloat(subtotal_round).toFixed(2));<?php }?>
             $("#hidden_total_amt").val(parseFloat(subtotal_round).toFixed(2)); 
+            calculate_balance();
         }
         else{
             $("#sub_total").html('0.00'); 
             $("#grand_total").html('0.00'); 
-            $("#amount").val('0.00');
+            $("#tax_amt_sgst").html('0.00');
+            $("#tax_amt_cgst").html('0.00');
             $("#discount_on_all_amt").html('0.00'); 
             $('#round_off_amt').html('0.00');
             $("#subtotal_amt").html('0.00'); 

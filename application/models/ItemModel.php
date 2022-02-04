@@ -119,13 +119,13 @@ class ItemModel extends Model{
         foreach($this->searchOrder as $item){
             
             if(!empty($_POST['search']['value'])){
-                if($start === 0){
+                if($start == 0){
                     $query .= ' WHERE ( '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }else{
                     $query .= ' OR '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }
 
-                if(count($this->searchOrder) -1 === $start){
+                if(count($this->searchOrder) -1 == $start){
                     $query .= ')';
                 }
             }
@@ -134,7 +134,7 @@ class ItemModel extends Model{
 
         if(isset($_POST['order'])){
             $query .= ' ORDER BY ' . $this->searchOrderNew[$_POST['order']['0']['column']] . ' ';
-            $query .= ($_POST['order']['0']['dir'] === 'desc') ? 'DESC' : 'ASC' ;
+            $query .= ($_POST['order']['0']['dir'] == 'desc') ? 'DESC' : 'ASC' ;
         }else{
             $query .= ' ORDER BY '. $this->order[0] ." ". $this->order[1];
         }
@@ -429,8 +429,10 @@ class ItemModel extends Model{
      */
     public function createItemId()
     {
-        //TODO PREFIX FOR  FROM SETTING OR SOMETHING
-        $prefix = 'IT';
+        $this->db->prepare("SELECT item_prefix FROM shopdetails");
+        $this->db->execute();
+        $prefix = $this->db->fetchAssociative()['item_prefix'];
+
         //Create item unique Id
         $query = "SELECT COALESCE(MAX(id), 0)+1 AS maxid FROM ".$this->table;
         $this->db->prepare($query);

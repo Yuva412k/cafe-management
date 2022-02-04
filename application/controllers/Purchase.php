@@ -15,7 +15,7 @@ class Purchase extends Controller{
 
         $action = $this->request->param('action');
 
-        $actions = ['ajaxList','removeMultiplePurchase','returnPurchaseList','supplierAjax','returnRowWithData','addPurchase', 'updatePurchase', 'removePurchase'];
+        $actions = ['ajaxList','showPayNowModal','deletePayment','savePayment','viewPaymentsModal','removeMultiplePurchase','returnPurchaseList','supplierAjax','returnRowWithData','addPurchase', 'updatePurchase', 'removePurchase'];
         $this->Security->requireAjax($actions);
         switch($action)
         {
@@ -43,11 +43,23 @@ class Purchase extends Controller{
             case 'returnPurchaseList':
                 $this->Security->config('validateForm',false);    
                 break;
+            case 'viewPaymentsModal':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'savePayment':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'deletePayment':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'showPayNowModal':
+                $this->Security->config('validateForm',false);    
+                break;
                 
         }
         $this->loadModel('purchaseModel');
-        $this->loadModel('unitModel');
         $this->loadModel('taxModel');
+        $this->loadModel('paymenttypeModel');
     }
     
     public function index()
@@ -60,19 +72,19 @@ class Purchase extends Controller{
     public function add()
     {
         //todo
+        $paymenttypeData = $this->paymenttypeModel->getDataTable();
+        Config::setJsConfig('curPage', 'purchase/add');
         //purchase id auto generate
-        $paymentData = ['payment_type'=>'cash','length'=>1];
-       Config::setJsConfig('curPage', 'purchase/add');
        $purchaseid = $this->purchaseModel->createPurchaseId();
         $taxData = $this->taxModel->getDataTable();
-       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "purchase/add", ['taxData'=>$taxData,'purchase_id'=>$purchaseid, "paymentData"=>$paymentData]);
+       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "purchase/add", ['taxData'=>$taxData,'purchase_id'=>$purchaseid, "paymenttypeData"=>$paymenttypeData]);
     }
 
     public function addPurchase()
     {
         $purchaseFields = ['purchase_date','purchase_id','round_off' ,'reference_no','sub_total' ,'grand_total','payment_type', 'payment_status','amount','payment_note', 'created_by', 'supplier_id', 'paid_amount', 'purchase_status', 'purchase_due','other_charges_input','other_charges_amt', 'other_charges_type', 'discount_on_all_input','discount_on_all_type', 'discount_on_all_amt', 'tax_id','tax_amt_cgst','tax_amt_sgst', 'hidden_rowcount'];
-        $created_by = Session::getUserRole();
-        $created_date = date('Y-j-d');
+        $created_by = Session::getUsername();
+        $created_date = date('Y-m-d');
         $purchase_time = date('h:m:s');
         $fields = [];
         foreach($purchaseFields as $field){
@@ -117,10 +129,10 @@ class Purchase extends Controller{
     public function update()
     {
         $purchase_id = $this->request->param('args')[0];
-        $paymentData = ['payment_type'=>'cash','length'=>1];
+        $paymenttypeData = $this->paymenttypeModel->getDataTable();
         $purchaseData = $this->purchaseModel->get_details($purchase_id);
         $taxData = $this->taxModel->getDataTable();
-        return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "purchase/add", ['id'=>$purchaseData['id'],'taxData'=>$taxData, 'purchaseData'=>$purchaseData, 'paymentData'=>$paymentData]);
+        return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "purchase/add", ['id'=>$purchaseData['id'],'purchaseData'=>$purchaseData,'taxData'=>$taxData, "paymenttypeData"=>$paymenttypeData]);
     }
 
     public function ajaxList()
@@ -136,11 +148,11 @@ class Purchase extends Controller{
 
             $row = array();
 
-            $disable = ($purchase['id'] === 1) ? 'disabled' : '';
+            $disable = ($purchase['id'] == 1) ? 'disabled' : '';
             
             $row[] ='<input type="checkbox" onclick="checkcheckbox()" name="checkbox[]"'.$disable.'value='.$purchase['purchase_id'].' class="row_check" >';
             $row[] = $purchase['purchase_date'];
-            $info = (!empty($purchase['return_bit'])) ? "\n<span class='label label-danger' style='cursor:pointer'><i class='fa fa-fw fa-undo'></i>Return Raised</span>" : '';
+            $info = (!empty($purchase['return_bit'])) ? "\n<span class='label-danger' style='cursor:pointer;display:inline-block;'><i class='fa fa-fw fa-undo'></i>Return Raised</span>" : '';
             $row[] = $purchase['purchase_id'].$info;
             $row[] = $purchase['purchase_status'];
             $row[] = $purchase['reference_no'];
@@ -149,18 +161,18 @@ class Purchase extends Controller{
             $row[] = number_format($purchase['paid_amount'],2);
             $row[] = number_format($purchase['purchase_due'],2);
             $str='';
-            if($purchase['payment_status'] ==='Unpaid')
+            if($purchase['payment_status'] =='Unpaid')
               $str= "<span class='label label-danger' style='cursor:pointer'>Unpaid </span>";
-            if($purchase['payment_status'] ==='Partial')
+            if($purchase['payment_status'] =='Partial')
               $str="<span class='label label-warning' style='cursor:pointer'> Partial </span>";
-            if($purchase['payment_status'] ==='Paid')
+            if($purchase['payment_status'] =='Paid')
               $str="<span class='label label-success' style='cursor:pointer'> Paid </span>";
 
             $row[] = $str;
             $row[] = ucfirst($purchase['created_by']);
 
-            $str2 = '<div>
-            <a class="drop-down" onclick="dropdown(this)" href="#">Action</a>
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
             <ul class="dropdown-menu">';
                 $str2.='<li>
                     <a title="View Invoice" href="purchase/invoice/'.$purchase['purchase_id'].'" >
@@ -176,20 +188,19 @@ class Purchase extends Controller{
 
 
                 $str2.='<li>
-                    <a title="Pay" class="pointer" onclick="pay_now('.$purchase['purchase_id'].')" >
-                        <i class="fa fa-fw fa-hourglass-half text-blue"></i>Payment Receive
+                    <a title="Pay" style="cursor:pointer" onclick="pay_now(\''.$purchase['purchase_id'].'\')" >
+                        <i class="fa fa-fw fa-hourglass-half text-blue"></i>Pay Now
+                    </a>
+                </li>
+                <li>
+                    <a title="Pay" style="cursor:pointer" onclick="view_payments(\''.$purchase['purchase_id'].'\')" >
+                        <i class="fas fa-money"></i>View Payments
                     </a>
                 </li>';
 
                 $str2.='<li>
-                    <a title="Update Record ?" target="_blank" href="purchase/print_invoice/'.$purchase['purchase_id'].'">
+                    <a title="Print ?" target="_blank" href="purchase/printinvoice/'.$purchase['purchase_id'].'">
                         <i class="fa fa-fw fa-print text-blue"></i>Print
-                    </a>
-                </li>
-
-                <li>
-                    <a style="cursor:pointer" title="Print POS Invoice ?" onclick="print_invoice('.$purchase['purchase_id'].')">
-                        <i class="fa fa-fw fa-file-text text-blue"></i>POS Invoice
                     </a>
                 </li>';
 
@@ -273,23 +284,56 @@ class Purchase extends Controller{
         $purchase_id = $this->request->param('args')[0];
 		echo $this->purchaseModel->returnPurchaseList($purchase_id);
 	}
-	public function delete_payment(){
-		$payment_id = $this->request->param('args')[0];
-		echo $this->purchaseModel->delete_payment($payment_id);
+	public function deletePayment(){
+		$payment_id = $this->request->data('payment_id');
+		$res = $this->purchaseModel->deletePayments($payment_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            echo 'success';
+        }
 	}
-	// public function show_pay_now_modal(){
-	// 	$purchase_id=$this->input->post('purchase_id');
-	// 	echo $this->purchase->show_pay_now_modal($purchase_id);
-	// }
-	public function save_payment(){
-		echo $this->purchaseModel->savePayment();
-	}
-	public function view_payments_modal(){
+	public function showPayNowModal(){
 		$purchase_id=$this->request->data('purchase_id');
-		echo $this->purchaseModel->view_payments_modal($purchase_id);
+		$res = $this->purchaseModel->showPayNowModal($purchase_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
+	}
+	public function savePayment(){
+        $createdDate = date('Y-m-d');
+        $createdBy = Session::getUsername();
+        $created_time = date('h:m:s');
+		$res = $this->purchaseModel->savePayment(array_merge($_POST,['created_by'=>$createdBy, 'created_date'=>$createdDate, 'created_time'=>$created_time]));
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            echo 'success';
+        }
+	}
+	public function viewPaymentsModal(){
+		$purchase_id=$this->request->data('purchase_id');
+		$res = $this->purchaseModel->viewPaymentModal($purchase_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
 	}
 
     public function invoice()
+    {
+        $purchase_id = $this->request->param('args')[0];
+        $data = $this->purchaseModel->invoiceDetails($purchase_id);
+        $this->view->render(Config::get("VIEWS_PATH").'invoice/purchase_invoice_1', $data);
+    }
+    public function printinvoice()
     {
         $purchase_id = $this->request->param('args')[0];
         $data = $this->purchaseModel->invoiceDetails($purchase_id);

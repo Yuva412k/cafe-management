@@ -1,23 +1,48 @@
+<html>
+    <head>
+        <title>Internal Server Error</title>
+        <?php include_once APP.'views/common/css_common.php';?>
+        <style>
+body{
+    display:unset;
+}
+.context {
+    height:100%;
+    width: 100%;
+    display: grid;
+    place-items:center;
+    
+}
 
-        <!-- Page Content -->
-        <div id="page-wrapper" style="min-height: 294px;">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12" style="text-align:center; font-family:'Trebuchet MS', Helvetica, sans-serif;">
-                        <h1 class="page-header" style="font-size: 80px;">500</h1>
-                        <h1 class="page-header">Oops, we are sorry but our system encountered an internal error<br>But do not worry, we are on it</h1>
-                    </div>
-					<hr>
-                    <!-- /.col-lg-12 -->
-                </div>
-                <!-- /.row -->
-            </div>
-            <!-- /.container-fluid -->
-        </div>
-        <!-- /#page-wrapper -->
+.context h2{
+    text-align: center;
+    color: var(--text-color);
+}
 
-<?php
-echo "<pre>";
-var_dump($_SERVER);
-var_dump($_SESSION);
-?>
+#error-btn{
+    padding:8px 10px;
+    border: 2px solid var(--text-color);
+    text-decoration: none;
+    display: inline-block;
+    color: var(--btn-color);
+    margin:10px;
+    transition: .3s;
+}
+#error-btn:hover{
+    color: var(--base-bgcolor);
+    border: 2px solid var(--base-bgcolor);
+    background-color: var(--btn-color);
+}
+        </style>
+    </head>
+    <body>
+       <div class="context">
+       <div style="text-align: center;">
+       <h2>Whoops! Looks like something went wrong</h2>
+         <img src="<?php echo PUBLIC_ROOT.'/image/500.gif'?>" id="error500-img" alt="" style="height: 400px;"><br><br>
+        <a id="error-btn" href="<?php echo PUBLIC_ROOT;?>">Go Back To Home</a>
+         <h2>Internal Server Error: 500</h2>
+      </div>
+      </div>
+    </body>
+</html>

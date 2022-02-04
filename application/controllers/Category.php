@@ -59,7 +59,7 @@ class Category extends Controller{
     {
         $categoryFields = ['category_id', 'category_name', 'category_description'];
         $createdDate = date('Y-m-d');
-        $createdBy = Session::getUserRole();
+        $createdBy = Session::getUsername();
         $fields = [];
         foreach($categoryFields as $field){
             $fields[$field] = $this->request->data($field);
@@ -149,10 +149,29 @@ class Category extends Controller{
             $row[] = $category['category_name'];
             $row[] = $category['category_description'];
             $url = PUBLIC_ROOT.'category/update/'.$category['category_id'];
-            $row[] = "<a href='#' class='row-del' onclick='delete_category(\"". $category["category_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
 
-            $data[] = $row;
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="'.$url.'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>
+                </li>';
+
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_sales(\''.$category["category_id"].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i>Delete
+                    </a>
+                </li>
+                
+            </ul>
+        </div>';		
+
+        $row[] = $str2;
+        $data[] = $row;
         }
+
         $ajaxData = array(
             'draw' => $_POST['draw'],
             'recordsTotal' => $this->categoryModel->countAll(),

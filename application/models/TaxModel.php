@@ -67,13 +67,13 @@ class TaxModel extends Model{
         foreach($this->columnOrder as $item){
             
             if(!empty($_POST['search']['value'])){
-                if($start === 0){
+                if($start == 0){
                     $query .= ' WHERE ( '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }else{
                     $query .= ' OR '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }
 
-                if(count($this->columnOrder) -1 === $start){
+                if(count($this->columnOrder) -1 == $start){
                     $query .= ')';
                 }
             }
@@ -82,7 +82,7 @@ class TaxModel extends Model{
 
         if(isset($_POST['order'])){
             $query .= ' ORDER BY ' . $this->dbColumnOrder[$_POST['order']['0']['column']]. ' ';
-            $query .= ($_POST['order']['0']['dir'] === 'dec') ? 'DESC' : 'ASC' ;
+            $query .= ($_POST['order']['0']['dir'] == 'dec') ? 'DESC' : 'ASC' ;
         }else{
             $query .= ' ORDER BY '. $this->order[0] ." ". $this->order[1];
         }
@@ -194,8 +194,10 @@ class TaxModel extends Model{
      */
     public function createTaxId()
     {
-        //TODO PREFIX FOR CUSTOMER FROM SETTING OR SOMETHING
-        $prefix = 'TAX';
+        $this->db->prepare("SELECT tax_prefix FROM shopdetails");
+        $this->db->execute();
+        $prefix = $this->db->fetchAssociative()['tax_prefix'];
+
         //Create customers unique Id
         $query = "SELECT COALESCE(MAX(id), 0)+1 AS maxid FROM ".$this->table;
         $this->db->prepare($query);

@@ -54,11 +54,19 @@ class Login extends Controller{
 
             //get redirect url if any
             $redirect = $this->request->query('redirect');
+            $msg = isset($this->request->param('args')[0]) ? $this->request->param('args')[0]: null;
+            $error = '';
+            if($msg == 'conSession'){
+                $error = "Sorry!! Your account is already logged in another device";
+            }
 
-           return $this->view->render(Config::get('VIEWS_PATH').'login', ['redirect'=>$redirect]);
+           return $this->view->render(Config::get('VIEWS_PATH').'login', ['redirect'=>$redirect,'error_text'=>$error]);
         }
     }
 
+    public function contact(){
+           return $this->view->render(Config::get('VIEWS_PATH').'contact');
+    }
     /**
      * verify user token
      * this token was sent by email as soon as user creates a new account
@@ -90,22 +98,17 @@ class Login extends Controller{
         $rememberMe = $this->request->data('remember_me');
         $redirect = $this->request->data('redirect');
 
-
         $result = $this->loginModel->doLogin($username, $password, $rememberMe, $this->request->clientIp(), $this->request->userAgent());
 
         if(!$result){
 
-            Session::setFlashData('login-failed', $this->loginModel->errors());
-            return $this->redirector->to(PUBLIC_ROOT.'login');
+            foreach($this->loginModel->errors() as $err){
+                echo $err;
+            };
         }else{
-            Session::setFlashData('welcome', 'Welcome to Cafe Management System');
+            Session::setFlashData('complete', 'Welcome to Cafe Management System');
             //check if redirect url exists, then construct full url
-            if(!empty($redirect))
-            {
-                $redirect = $this->request->getProtocolAndHost().$redirect;
-                return $this->redirector->to($redirect);
-            }
-            return $this->redirector->root();
+               echo "success";
         }
     }
 

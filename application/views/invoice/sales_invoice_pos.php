@@ -110,9 +110,9 @@
                                 echo "<td>".++$i."</td>";
                                 echo "<td >".$res['item_name']."</td>";
                                 echo "<td style='text-align:right'>".$res['sales_qty']."</td>";
-                                echo "<td style='text-align:right'>".$res['price_per_unit']."</td>";
+                                echo "<td style='text-align:right'>".number_format($res['price_per_unit'],2)."</td>";
                                 echo "<td style='text-align:right'>".$discount."</td>";
-                                echo "<td style='text-align:right'>".$res['total_cost']."</td>";
+                                echo "<td style='text-align:right'>".number_format($res['total_cost'],2)."</td>";
                                 echo "</tr>";
                             }
                             $tot_sales_price += $res['price_per_unit'];
@@ -123,12 +123,12 @@
         <tr></tr>
             <tr>
                 <td style="text-align: right;" colspan="4">Sub Total :</td>
-                <td style="text-align: right;" colspan="2"><?=$sub_total?></td>
+                <td style="text-align: right;" colspan="2"><?=number_format($sub_total,2)?></td>
             </tr>
            <?php if(!empty($other_charges_amt) && $other_charges_amt != 0):?>
             <tr>
                 <td style="text-align: right;" colspan="4">Other Charges :</td>
-                <td style="text-align: right;" colspan="2"><?=$other_charges_amt?></td>
+                <td style="text-align: right;" colspan="2"><?=number_format($other_charges_amt,2)?></td>
             </tr>
             <?php endif;?>
             <?php if(!empty($discount_on_all_amt) && $discount_on_all_amt != 0):?>
@@ -152,12 +152,12 @@
                   $tax_per = $tax/2.0;
                 ?>
                 <td></td>
-                <td>CGST <?=$tax_per?>% :</td><td><?=number_format($tax_amt_cgst,2,'.')?></td>
-                <td colspan="2" style="padding-left: 5px;">SGST <?=$tax_per?>% :</td><td style="padding-left:10px;"><?=number_format($tax_amt_sgst,2,'.')?></td>
+                <td>CGST <?=$tax_per?>% :</td><td><?=number_format($tax_amt_cgst,2)?></td>
+                <td colspan="2" style="padding-left: 5px;">SGST <?=$tax_per?>% :</td><td style="padding-left:10px;"><?=number_format($tax_amt_sgst,2)?></td>
             </tr>
             <tr style="border-bottom-style:dashed;border-width: 0.1px">
                 <td colspan="4" style="text-align: right;"><b>Net Total :</b></td>
-                <td colspan="2" style="text-align: right;"><?=number_format(round($grand_total),2,'.')?></td>
+                <td colspan="2" style="text-align: right;"><?=number_format(round($grand_total),2);?></td>
             </tr>
             <tr></tr>
             <tr>

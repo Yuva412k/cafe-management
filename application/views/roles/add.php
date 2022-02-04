@@ -15,13 +15,12 @@ if(!isset($id)){
             <?php include_once APP.'views/common/flashdata.php'?>
         <!-- FLASH MESSAGE END -->
         <div class="wrapper-container">
-            <form  name='role-form' id='role-form'>
+            <form  name='role-form' class="validate-form" id='role-form'>
                 <div class="header">
                     <div class="item-pair">
                         <label for="role_name">Role Name <sup style="color: red">*</sup></label>
-                        <div style="width:60%">
-                        <input type="text" name="role_name" style="width: 100%;" value="<?php print $role_name; ?>"  id="role_name" autofocus>
-                        <span id="role_name_msg" class='required'></span>
+                        <div style="width:60%" class="validate-input" data-validate="Role name is required">
+                        <input type="text"  class='req-input' name="role_name" style="width: 100%;" value="<?php echo $role_name; ?>"  id="role_name" autofocus>
                         </div>
                     </div>
                     <div class="item-pair" style="display: flex;align-items: center;">
@@ -33,13 +32,13 @@ if(!isset($id)){
                         <input type="hidden" name="csrf_token" value="<?= Session::generateCsrfToken(); ?>" />
                     </div>
 
-                    <table class="table table-bordered">
+                    <table class="table">
                                       <thead class="bg-primary">
                                           <tr>
                                             <th>#</th>
                                             <th>Modules</th>
                                             <th>Select All</th>
-                                            <th>Specific Permissions</th>
+                                            <th width="40%">Specific Permissions</th>
                                           </tr>
                                       </thead>
                                       <tbody>
@@ -205,10 +204,10 @@ if(!isset($id)){
                                           </td>
                                         </tr>
                                        
-                                        <!-- ITEMS -->
+                                        <!-- PRODUCTS -->
                                         <tr>
                                           <td><?= $i++;?></td>
-                                          <td>Items</td>
+                                          <td>Products</td>
                                           <td>
                                               <div class="checkbox "><label>
                                                 <input type="checkbox" class="change_me" id="items" > Select All
@@ -454,13 +453,10 @@ if(!isset($id)){
                                                 <input type="checkbox" class="reports_all" id='purchase_return_report' name="permission[purchase_return_report]"> Purchase Return Report
                                               </label></div>
                                               <div class="checkbox "><label>
-                                                <input type="checkbox" class="reports_all" id='profit_report' name="permission[profit_report]"> Profit Report
-                                              </label></div>
-                                              <div class="checkbox "><label>
                                                 <input type="checkbox" class="reports_all" id='stock_report' name="permission[stock_report]"> Stock Report
                                               </label></div>
                                               <div class="checkbox "><label>
-                                                <input type="checkbox" class="reports_all" id='item_sales_report' name="permission[item_sales_report]"> Item Sales Report
+                                                <input type="checkbox" class="reports_all" id='item_sales_report' name="permission[item_sales_report]"> Product Sales Report
                                               </label></div>
                                               <div class="checkbox "><label>
                                                 <input type="checkbox" class="reports_all" id='purchase_payments_report' name="permission[purchase_payments_report]"> Purchase Payments Report
@@ -469,7 +465,7 @@ if(!isset($id)){
                                                 <input type="checkbox" class="reports_all" id='sales_payments_report' name="permission[sales_payments_report]"> Sales Payments Report
                                               </label></div>
                                               <div class="checkbox "><label>
-                                                <input type="checkbox" class="reports_all" id='expired_items_report' name="permission[expired_items_report]"> Expired Items Report
+                                                <input type="checkbox" class="reports_all" id='expired_items_report' name="permission[expired_items_report]"> Expired Products Report
                                               </label></div>
                                           </td>
                                         </tr>
@@ -491,11 +487,11 @@ if(!isset($id)){
                         ?>
                 </div>
 
-                <hr style="color: #f4f4f4">
+                <hr style="background-color: var(--border-color);">
                 <br>
                 <div class="btn-container">
+                   <div class="btn"><a href="<?php echo PUBLIC_ROOT.'roles' ?>" id='button'>Cancel</a></div>
                     <div class="btn"><input type="submit" name='submit' id="<?php echo $btn_id;?>" value="<?php echo $btn_name;?>"></div>
-                    <div class="btn"><input type="reset" name='reset' value="Reset"></div>
                 </div>
             </form>
             <input type="hidden" id="baseURL" value="<?php echo PUBLIC_ROOT; ?>">

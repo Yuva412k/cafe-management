@@ -29,6 +29,7 @@ class Dashboard extends Controller{
         $role = Session::getUserRole();
         $resource = "dashboard";
 
+        
         return Permission::check($role, $resource, $action);
     }
 }

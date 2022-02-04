@@ -15,7 +15,7 @@ class Supplier extends Controller{
 
         $action = $this->request->param('action');
 
-        $actions = ['ajaxList','addSupplier', 'updateSupplier', 'removeSupplier'];
+        $actions = ['ajaxList','addSupplier', 'updateSupplier','removeSupplier','showPayNowModal','savePayment','showPayReturnDueModal','saveReturnDuePayment'];
         $this->Security->requireAjax($actions);
         switch($action)
         {
@@ -32,6 +32,18 @@ class Supplier extends Controller{
                 $this->Security->config('validateForm',false);    
                 break;
             case 'ajaxList':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'showPayNowModal':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'savePayment':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'showPayReturnDueModal':
+                $this->Security->config('validateForm',false);    
+                break;
+            case 'saveReturnDuePayment':
                 $this->Security->config('validateForm',false);    
                 break;
             
@@ -52,7 +64,7 @@ class Supplier extends Controller{
         //supplier id auto generate
        Config::setJsConfig('curPage', 'supplier/add');
        $supplierid = $this->supplierModel->createSupplierId();
-       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "supplier/add", ['supplierid'=>$supplierid]);
+       return $this->view->renderWithLayouts(Config::get("VIEWS_PATH")."layout/" , Config::get("VIEWS_PATH"). "supplier/add", ['supplier_id'=>$supplierid]);
     }
 
     public function update()
@@ -119,10 +131,10 @@ class Supplier extends Controller{
     {
         $custFields = ['supplier_name','supplier_id','supplier_mobile', 'supplier_GST', 'supplier_balance', 'supplier_country', 'supplier_state', 'supplier_city', 'supplier_pincode', 'supplier_address'];
         $createdDate = date('Y-m-d');
-        $createdBy = Session::getUserRole();
+        $createdBy = Session::getUsername();
         $fields = [];
         foreach($custFields as $field){
-            if($field==='supplier_mobile' || $field === 'supplier_pincode' || $field === 'supplier_balance'){
+            if($field=='supplier_mobile' || $field == 'supplier_pincode' || $field == 'supplier_balance'){
                 $fields[$field] = empty($this->request->data($field)) ? null:  (int)$this->request->data($field) ;
                 continue;
             }
@@ -162,11 +174,40 @@ class Supplier extends Controller{
             $row[] = $supplier['address'];
             $row[] = $supplier['city'];
             $row[] = $supplier['state'];
-            $row[] = $supplier['country'];
+            $row[] = $supplier['purchase_due'];
+            $row[] = $supplier['purchase_return_due'];
             $row[] = $supplier['opening_balance'];
             $url = PUBLIC_ROOT.'supplier/update/'.$supplier['supplier_id'];
-            $row[] = "<a href='#' class='row-del' onclick='delete_supplier(\"". $supplier["supplier_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
+            // $row[] = "<a href='#' class='row-del' onclick='delete_supplier(\"". $supplier["supplier_id"]."\")'>Delete</a> <a href='$url' class='row-edit' >update</a>";
 
+            $str2 = '<div class="dropdown">
+            <a onclick="dropdown(this)" href="#"><i class="fas fa-ellipsis-h"></i></a>
+            <ul class="dropdown-menu">';
+                $str2.='<li>
+                    <a title="Update Record ?" href="'.$url.'">
+                        <i class="fa fa-fw fa-edit text-blue"></i>Edit
+                    </a>
+                </li>';
+                $str2.='<li>
+                <a style="cursor:pointer;" title="Pay Opening Balance & Purchase Due Payments" onclick="pay_now(\''.$supplier['supplier_id'].'\')" >
+                    <i class="fas fa-money"></i> Pay Due 
+                    </a>
+                </li>';
+                $str2.='<li>
+                <a style="cursor:pointer;" title="Pay Return Due"  onclick="pay_return_due(\''.$supplier['supplier_id'].'\')" >
+                    <i class="fas fa-money"></i> Pay Return D...
+                </a>
+                </li>';
+                $str2.='<li>
+                    <a style="cursor:pointer" title="Delete Record ?" onclick="delete_sales(\''.$supplier["supplier_id"].'\')">
+                        <i class="fa fa-fw fa-trash text-red"></i>Delete
+                    </a>
+                </li>
+                
+            </ul>
+        </div>';		
+
+        $row[] = $str2;
             $data[] = $row;
         }
         $ajaxData = array(
@@ -177,6 +218,56 @@ class Supplier extends Controller{
         );
         
         echo json_encode($ajaxData);
+    }
+    public function showPayNowModal()
+    {
+        $supplier_id = $this->request->data('supplier_id');
+        $res = $this->supplierModel->showPayNowModal($supplier_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
+    }
+
+    public function savePayment()
+    {
+        $createdDate = date('Y-m-d');
+        $createdBy = Session::getUsername();
+        $created_time = date('h:m:s');
+        $res = $this->supplierModel->savePayment(array_merge($_POST,['created_by'=>$createdBy, 'created_date'=>$createdDate, 'created_time'=>$created_time]));
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            echo 'success';
+        }
+    }
+
+    public function showPayReturnDueModal()
+    {
+        $supplier_id = $this->request->data('supplier_id');
+        $res = $this->supplierModel->showPayReturnDueModal($supplier_id);
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }
+    }
+    public function saveReturnDuePayment()
+    {
+        $createdDate = date('Y-m-d');
+        $createdBy = Session::getUsername();
+        $created_time = date('h:m:s');
+        $res = $this->supplierModel->saveReturnDuePayment(array_merge($_POST,['created_by'=>$createdBy, 'created_date'=>$createdDate, 'created_time'=>$created_time]));
+        if( is_string($res)){
+            echo $res;
+        }else if(is_bool($res) && $res == false){
+            echo "failed";
+        }else{
+            return 'success';
+        }
     }
     public function isAuthorized()
     {

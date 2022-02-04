@@ -75,13 +75,13 @@ class RolesModel extends Model{
         foreach($this->columnOrder as $item){
             
             if(!empty($_POST['search']['value'])){
-                if($start === 0){
+                if($start == 0){
                     $query .= ' WHERE ( '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }else{
                     $query .= ' OR '.$item." LIKE '%". $_POST['search']['value'] . "%'";
                 }
 
-                if(count($this->columnOrder) -1 === $start){
+                if(count($this->columnOrder) -1 == $start){
                     $query .= ')';
                 }
             }
@@ -90,7 +90,7 @@ class RolesModel extends Model{
 
         if(isset($_POST['order'])){
             $query .= ' ORDER BY ' . $this->dbColumnOrder[$_POST['order']['0']['column']]. ' ';
-            $query .= ($_POST['order']['0']['dir'] === 'dec') ? 'DESC' : 'ASC' ;
+            $query .= ($_POST['order']['0']['dir'] == 'dec') ? 'DESC' : 'ASC' ;
         }else{
             $query .= ' ORDER BY '. $this->order[0] ." ". $this->order[1];
         }
@@ -160,7 +160,7 @@ class RolesModel extends Model{
      */
     public function removeRoleFromTable($id)
     {
-        if(str_contains($id, '1')){
+        if((strpos($id, '\'1\'') === true) || $id == "'1'"){
             return 'This role cannot be Removed';
         }
         $query = "SELECT COUNT(*) AS tot , b.role_name From users a, roles b WHERE a.role_id IN ($id) GROUP BY a.role_id";

@@ -80,10 +80,10 @@ class LoginModel extends Model
         }
 
         //reset session
-        Session::reset(['user_id' => $userId, 'role_id' => $user['role_id'], 'ip' => $userIp, "user_agent" => $userAgent]);
+        Session::reset(['user_id' => $userId, 'role_id' => $user['role_id'], 'ip' => $userIp, "user_agent" => $userAgent,'name'=>$user['name']]);
 
         //if remember me checkbox is checked, the save data to cookies as well
-        if (!empty($rememberMe) && $rememberMe === 'rememberme') {
+        if (!empty($rememberMe) && $rememberMe == 'remember_me') { 
 
             //reset cookie, Cookie token usable only once
             Cookie::reset($userId);
@@ -194,7 +194,7 @@ class LoginModel extends Model
 
         if (isset(Session::get('forgotpasswordtoken'))) {
             $token = Session::get('forgotpasswordtoken');
-            if ($userId === $token['userId'] && $passwordToken === $token['token']) {
+            if ($userId == $token['userId'] && $passwordToken == $token['token']) {
                 return true;
             } else {
                 $this->resetPasswordToken($userId);
@@ -262,7 +262,7 @@ class LoginModel extends Model
         $this->db->bindValue(':email', $email);
         $this->db->execute();
 
-        return $this->db->countRows() === 1;
+        return $this->db->countRows() == 1;
     }
 
     /**

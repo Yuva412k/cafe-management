@@ -1,166 +1,148 @@
-/*Email validation code*/
-function validateEmail(sEmail) {
-    var filter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-    if (filter.test(sEmail)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
 
-$('#save, #update').click(function(e){
+$('#save,#update').click(function (e) {
 
     e.preventDefault();
 
-    let baseURL = $('#baseURL').val().trim();
-
-    // var email = $('#email').val().trim();
-    flag = true;
-    function check_field(id)
-    {
-
-      if(!$("#"+id).val().trim() ) //Also check Others????
-        {
-            $('#'+id+'_msg').fadeIn(200).show().html('Required Field').addClass('required');
-            $('#'+id).css({'background-color' : '#E8E2E9'});
-            flag=false;
-        }
-        else
-        {
-             $('#'+id+'_msg').fadeOut(200).hide();
-             $('#'+id).css({'background-color' : '#FFFFFF'});    //White color
-        }
-    }
-
-    //Validate form input's
-    check_field('cust_name');
-    check_field('cust_id');
-    
-    // var email = $('#email').val().trim();
-    // if(email!='' && !validateEmail(email)){
-    //     $('#email_msg').html('Invalid Email!').show();
-    //     return toastr['warning']('Please Enter valid Email ID.');
-    // }else{
-    //     $('#email_msg').html('Invalid Email!').hide();
-    // }
-
-    if(flag===false){
-        toastr['warning']('Please Fill Required Fields')
+    if(!validateForm()){
+		toastr["warning"]("Please Fill Required Fields!");
         return;
     }
 
-    var this_id = this.id;
+	let base_url=$("#baseURL").val().trim();
+    //Initially flag set true
+    let flag=true;
 
-    if(this_id == 'save')//Save popup
+    var this_id=this.id;
+
+    if(this_id=="save")  //Save start
     {
-        if(confirm('Do You Wants to Save Record ?')){
-            e.preventDefault();
-            data = new FormData($('#customers-form')[0]); 
-            //Check xss code
+     if(confirm("Do You Wants to Save Record ?")){
+        e.preventDefault();
+        data = new FormData($('#customer-form')[0]);//form name
 
-            $('.box').append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+        $(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+        $("#"+this_id).attr('disabled',true);  //Enable Save or Update button
+        $.ajax({
+        type: 'POST',
+        url: base_url+'customer/addCustomer',
+        data: data,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(result){
 
-            $('#'+this_id).attr('disabled', true); // Enable Save or Update button
-            $.ajax({
-                type: 'POST',
-                url: 'addCustomer',
-                data : data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function(result){
-                    if(result=='success'){
-                        window.location=baseURL+"customer/add";
-                        return;
-                    }else if(result=='failed'){
-                        toastr['error']('Sorry! Failed to save Record. Try again');
-                    }else{
-                        toastr['error'](result)
-                    }
-                    $('#'+this_id).attr('disabled', false); // Enable Save or Update button
-                    $('.overlay').remove();
-                }
-            });
+            if(result=="success")
+            {
+                window.location=base_url+"customer/add";
+                return;
+            }
+            else if(result=="failed")
+            {
+                toastr["error"]("Sorry! Failed to save Record.Try again!");
+            }
+            else
+            {
+                toastr["error"](result);
+            }
+            $("#"+this_id).attr('disabled',false);  //Enable Save or Update button
+            $(".overlay").remove();
         }
-    }
-    //update Popup
-    else if(this_id == 'update')
-    {
-        if(confirm('Do You Wants to Save Record ?')){
-            e.preventDefault();
-            data = new FormData($('#customers-form')[0]); 
-            //Check xss code
-
-            $('.box').append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
-
-            $('#'+this_id).attr('disabled', true); // Enable Save or Update button
-            $.ajax({
-                type: 'POST',
-                url: 'updateCustomer',
-                data : data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function(result){
-                    if(result=='success'){
-                        window.location=base_url+"customers/add";
-                        return;
-                    }else if(result=='failed'){
-                        toastr['error']('Sorry! Failed to save Record. Try again');
-                    }else{
-                        toastr['error'](result)
-                    }
-                    $('#'+this_id).attr('disabled', false); // Enable Save or Update button
-                    $('.overlay').remove();
-                }
-            });
-        }
-
+        });
     }
 
+    }//Save end
+	
+	else if(this_id=="update")  //Save start
+    {
+    
+        if(confirm("Do You Wants to Update Record ?")){
+            e.preventDefault();
+            data = new FormData($('#customer-form')[0]);//form name
+            
+            $(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+            $("#"+this_id).attr('disabled',true);  //Enable Save or Update button
+            $.ajax({
+            type: 'POST',
+            url: base_url+'customer/updateCustomer',
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(result){
+                if(result=="success")
+                {
+                    //toastr["success"]("Record Updated Successfully!");
+                    window.location=base_url+"customer/add";
+                }
+                else if(result=="failed")
+                {
+                    toastr["error"]("Sorry! Failed to save Record.Try again!");
+                }
+                else
+                {
+                    toastr["error"](result);
+                }
+                $("#"+this_id).attr('disabled',false);  //Enable Save or Update button
+                $(".overlay").remove();
+            }
+            });
+    }
+
+    }//Save end
+	
 
 });
 
-
 //Delete Record start
-function delete_customers(cust_id)
+function delete_customer(customer_id)
 {
+    csrf_token = $('#csrf_token').val();
 	
    if(confirm("Do You Wants to Delete Record ?")){
    	$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
-   $.post("customers/delete",{cust_id:cust_id},function(result){
+   $.post("customer/removeCustomer",{'customer_id': customer_id, 'csrf_token': csrf_token},function(result){
 
     if(result=="success")
-    {
-        toastr["success"]("Record Deleted Successfully!");
-        $('#cust_list').DataTable().ajax.reload();
-    }
-    else if(result=="failed"){
-        toastr["error"]("Failed to Delete .Try again!");
-    }
-    else{
-        toastr["error"](result);
-    }
-    $(".overlay").remove();
-    return false;
+        {
+            toastr["success"]("Record Deleted Successfully!");
+            $('#cust_list').DataTable().ajax.reload();
+        }
+        else if(result=="failed"){
+            toastr["error"]("Failed to Delete .Try again!");
+        }
+        else{
+            toastr["error"](result);
+        }
+        $(".overlay").remove();
+        return false;
    });
-   }
+   }//end confirmation
 }
 
-function multi_delete(){
+//Delete Multiple or Selected Record 
 
-    var this_id=this.id;
-	//var base_url=$("#base_url").val().trim();
-    
+$('#delete_record').click(function(){
+
+    var deleteids = [];
+    // Read all checked checkboxes
+    $("input:checkbox[class=row_check]:checked").each(function () {
+       deleteids.push($(this).val());
+    });
+    csrf_token = $('#csrf_token').val();
+
+    // Check checkbox checked or not
+    if(deleteids.length > 0){
+
 		if(confirm("Are you sure ?")){
 			$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
-			$("#"+this_id).attr('disabled',true);  //Enable Save or Update button
-		/************************************TODO form */	
-			data = new FormData($('#table_form')[0]);//form name
+			$("#delete_record").attr('disabled',true);  //Enable Save or Update button
+			data = new FormData()
+            for(let i = 0; i < deleteids.length; i++){
+                data.append('deleteids[]', deleteids[i]);
+            }
 			$.ajax({
 			type: 'POST',
-			url: 'customers/multiDelete',
+			url: 'customer/removeMultipleCustomer',
 			data: data,
 			cache: false,
 			contentType: false,
@@ -172,7 +154,7 @@ function multi_delete(){
 				{
 					toastr["success"]("Record Deleted Successfully!");
 					$('#cust_list').DataTable().ajax.reload();
-					$(".check-all").prop("checked",false);
+					$(".checkall").prop("checked",false);
 				}
 				else if(result=="failed")
 				{
@@ -182,10 +164,152 @@ function multi_delete(){
 				{
 					toastr["error"](result);
 				}
-				$("#"+this_id).attr('disabled',false);  //Enable Save or Update button
+				$("#delete_record").attr('disabled',false);  //Enable Save or Update button
 				$(".overlay").remove();
 		   }
 		   });
-	}
+	    }
+    }else{
+        toastr['warning']("No Rows Selected");
+    }
 	//e.preventDefault
+    
+});
+
+// Checkbox checked
+function checkcheckbox(){
+
+    // Total checkboxes
+    var length = $('.row_check').length;
+
+    // Total checked checkboxes
+    var totalchecked = 0;
+    $('.row_check').each(function(){
+        if($(this).is(':checked')){
+            totalchecked+=1;
+        }
+    });
+
+    // Checked unchecked checkbox
+    if(totalchecked == length){
+         $("#checkall").prop('checked', true);
+    }else{
+         $('#checkall').prop('checked', false);
+    }
 }
+
+
+function pay_now(customer_id){
+
+    $.post($("#baseURL").val().trim()+'customer/showPayNowModal', {'customer_id': customer_id}, function(result) {
+      $(".pay_now_modal").html('').html(result);
+        showModal();
+  
+    });
+  }
+  function save_payment(customer_id){
+    var base_url=$("#baseURL").val().trim();
+    
+  
+        if(!validateForm()){
+          toastr["warning"]("Please Fill Required Fields!");
+              return;
+        }
+  
+  
+      var payment_date=$("#payment_date").val().trim();
+      var amount=$("#amount").val().trim();
+      var payment_type=$("#payment_type").val().trim();
+      var payment_note=$("#payment_note").val().trim();
+  
+      if(amount == 0){
+        toastr["error"]("Please Enter Valid Amount!");
+        return false; 
+      }
+  
+      if(amount > parseFloat($("#amount").attr('data-due-amt'))){
+        toastr["error"]("Entered Amount Should not be Greater than Due Amount!");
+        return false;
+      }
+  
+      //$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+      //$(".payment_save").attr('disabled',true);  //Enable Save or Update button
+      $.post('customer/savePayment', {customer_id: customer_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
+        result=result.trim();
+    //alert(result);return;
+          if(result=="success")
+          {
+            hideModal();
+            toastr["success"]("Payment Recorded Successfully!");
+            $('#cust_list').DataTable().ajax.reload();
+          }
+          else if(result=="failed")
+          {
+             toastr["error"]("Sorry! Failed to save Record.Try again!");
+          }
+          else
+          {
+            toastr["error"](result);
+          }
+          $(".payment_save").attr('disabled',false);  //Enable Save or Update button
+          $(".overlay").remove();
+      });
+  }
+  
+  function pay_return_due(customer_id){
+  
+    $.post($("#baseURL").val().trim()+'customer/showPayReturnDueModal', {customer_id: customer_id}, function(result) {
+      $(".pay_now_modal").html('').html(result);
+
+      showModal();
+  
+    });
+  }
+  function save_return_due_payment(customer_id){
+    var base_url=$("#baseURL").val().trim();
+    
+  
+    if(!validateForm()){
+		toastr["warning"]("Please Fill Required Fields!");
+        return;
+    }
+  
+      var payment_date=$("#return_due_payment_date").val().trim();
+      var amount=$("#return_due_amount").val().trim();
+      var payment_type=$("#return_due_payment_type").val().trim();
+      var payment_note=$("#return_due_payment_note").val().trim();
+  
+      if(amount == 0){
+        toastr["error"]("Please Enter Valid Amount!");
+        return false; 
+      }
+  
+      if(amount > parseFloat($("#return_due_amount").attr('data-due-amt'))){
+        toastr["error"]("Entered Amount Should not be Greater than Due Amount!");
+        return false;
+      }
+  
+      //$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+      //$(".payment_save").attr('disabled',true);  //Enable Save or Update button
+      $.post('customer/saveReturnDuePayment', {customer_id: customer_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
+        result=result.trim();
+    //alert(result);return;
+          if(result=="success")
+          {
+            hideModal();
+            toastr["success"]("Payment Recorded Successfully!");
+            $('#cust_list').DataTable().ajax.reload();
+          }
+          else if(result=="failed")
+          {
+             toastr["error"]("Sorry! Failed to save Record.Try again!");
+          }
+          else
+          {
+            toastr["error"](result);
+          }
+          $(".return_due_payment_save").attr('disabled',false);  //Enable Save or Update button
+          $(".overlay").remove();
+      });
+  }
+  

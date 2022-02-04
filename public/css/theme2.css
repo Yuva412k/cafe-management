@@ -1,0 +1,53 @@
+:root {
+    --base-bgcolor: #f5f5f5;
+    --box-bgcolor: #fbfbfb;
+    --menu-bgcolor: #fbfbfb;
+    --sidebar-bgcolor: #0a2463;
+    --sidebar-hover: #061740;
+    --table-header: #d2d2d2;
+    --table-hover-color: rgba(208, 208, 208, 0.63);
+    --menu-hover: #f4f4f4;
+    --icon-color: #1c1c1c;
+    --text-color: #1c1c1c;
+    --logo-bgcolor: rgba(240, 240, 240, 0.24);
+    --border-color: rgba(185, 183, 183, 0.8);
+    --box-text: #222;
+    --input-border: none;
+    --input-bgcolor: #e8e8e8;
+    --textbox-text: #313030;
+    --box-shadow-color: #605f5e;
+    --btn-color: rgb(255, 255, 255);
+    --theme: #0a2463;
+    --dashboard-icon-bgcolor: #fbfbfb;
+    --sidebar-color: #fff;
+    --sidebar-menu-bgcolor: #0c2e82;
+    --sidebar-icon-color: #fdfdfd;
+    --container-bgcolor: #fbfbfb;
+    --container-border-color: #0a2463;
+    --btn-bgcolor: #247ba0;
+    --btn-hover: #1f6c8c;
+    --error-text: #fb3640;
+    --warning-btn: #ed143d;
+    --warning-btn-hover: #cc1f3e;
+    --font: 'Roboto', sans-serif;
+    --label-success: green;
+    --label-warning: rgb(202, 202, 43);
+    --label-danger: crimson;
+    --icon-color1: #247ba0;
+    --icon-color2: #fb3640;
+    --icon-color3: #0A2463;
+    --icon-color4: #fb3640;
+    --font-size: 13px;
+}
+#error500-img{
+    filter: drop-shadow(2px 2px 4px #000);
+}
+#error-btn{
+    border: 2px solid var(--text-color);
+    color: var(--text-color) !important;
+}
+#error-btn:hover{
+    color: var(--base-bgcolor) !important;
+    border: 2px solid var(--text-bgcolor) !important;
+    background-color: var(--text-bgcolor) !important;
+}

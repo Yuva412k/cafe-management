@@ -1,39 +1,13 @@
 $('#save,#update').click(function (e) {
-	var base_url=$("#baseUrl").val().trim();
+	var base_url=$("#baseURL").val().trim();
 
     e.preventDefault();
-    //Initially flag set true
-    var flag=true;
-
-    function check_field(id)
-    {
-
-      if(!$("#"+id).val().trim() ) //Also check Others????
-      //   {
-
-      //       // $('#'+id+'_msg').fadeIn(200).show().html('Required Field').addClass('required');
-      //      // $('#'+id).css({'background-color' : '#E8E2E9'});
-            flag=false;
-      //   }
-      //   else
-      //   {
-      //       //  $('#'+id+'_msg').fadeOut(200).hide();
-      //        //$('#'+id).css({'background-color' : '#FFFFFF'});    //White color
-      //   }
-    }
-
-
-   //Validate Input box or selection box should not be blank or empty
-	check_field("supplier_id");
-  check_field("purchase_id");
-  check_field("purchase_date");
-  check_field("purchase_status");
-
-	if(flag==false)
-	{
-		toastr["warning"]("Please Fill Required Fields!");
-		return;
-	}
+ 
+    if(!validateForm()){
+      toastr["warning"]("Please Fill Required Fields!");
+          return;
+      }
+  
 
 	//Atleast one record must be added in purchase table 
   var rowcount=document.getElementById("hidden_rowcount").value;
@@ -140,7 +114,7 @@ $("#item_search").autocomplete({
     source: function(data, cb){
         $.ajax({
           autoFocus:true,
-            url: $("#baseUrl").val()+'item/getJsonItemsDetails',
+            url: $("#baseURL").val()+'item/getJsonItemsDetails',
             method: 'POST',
             dataType: 'json',
             /*showHintOnFocus: true,
@@ -207,7 +181,7 @@ $("#item_search").autocomplete({
 
 function returnRowWithData(item_id){
   $("#item_search").addClass('ui-autocomplete-loader-center');
-	var base_url=$("#baseUrl").val().trim();
+	var base_url=$("#baseURL").val().trim();
 	var rowcount=$("#hidden_rowcount").val();
 	$.post(base_url+"purchase/returnRowWithData",{rowcount, item_id},function(result){
         //alert(result);
@@ -247,7 +221,7 @@ function update_paid_payment_total() {
 }
 function delete_payment(payment_id){
  if(confirm("Do You Wants to Delete Record ?")){
-    var base_url=$("#baseUrl").val().trim();
+    var base_url=$("#baseURL").val().trim();
     $(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
    $.post(base_url+"purchase/delete_payment",{payment_id:payment_id},function(result){
    //alert(result);return;
@@ -256,18 +230,13 @@ function delete_payment(payment_id){
         { 
           toastr["success"]("Record Deleted Successfully!");
           $("#payment_row_"+payment_id).remove();
-          success.currentTime = 0; 
-          success.play();
+
         }
         else if(result=="failed"){
           toastr["error"]("Failed to Delete .Try again!");
-          failed.currentTime = 0; 
-          failed.play();
         }
         else{
           toastr["error"](result);
-          failed.currentTime = 0; 
-          failed.play();
         }
         $(".overlay").remove();
         update_paid_payment_total();
@@ -358,52 +327,25 @@ $('#delete_record').click(function(){
 });
 
 function pay_now(purchase_id){
-  $.post('purchase/show_pay_now_modal', {purchase_id: purchase_id}, function(result) {
-    $(".pay_now_modal").html('').html(result);
-    //Date picker
-    $('.datepicker').datepicker({
-      autoclose: true,
-    format: 'dd-mm-yyyy',
-     todayHighlight: true
-    });
-    $('#pay_now').modal('toggle');
-
+  $.post('purchase/showPayNowModal', {purchase_id: purchase_id}, function(result) {
+    $(".view_payments_modal").html('').html(result);
+    showModal();
   });
 }
 function view_payments(purchase_id){
-  $.post('purchase/view_payments_modal', {purchase_id: purchase_id}, function(result) {
+  $.post('purchase/viewPaymentsModal', {purchase_id: purchase_id}, function(result) {
     $(".view_payments_modal").html('').html(result);
-    $('#view_payments_modal').modal('toggle');
+    showModal();
   });
 }
 
 function save_payment(purchase_id){
-  var base_url=$("#baseUrl").val().trim();
+  var base_url=$("#baseURL").val().trim();
 
-    //Initially flag set true
-    var flag=true;
-
-    function check_field(id)
-    {
-
-      if(!$("#"+id).val().trim() ) //Also check Others????
-        {
-
-            $('#'+id+'_msg').fadeIn(200).show().html('Required Field').addClass('required');
-           // $('#'+id).css({'background-color' : '#E8E2E9'});
-            flag=false;
-        }
-        else
-        {
-             $('#'+id+'_msg').fadeOut(200).hide();
-             //$('#'+id).css({'background-color' : '#FFFFFF'});    //White color
-        }
+  if(!validateForm()){
+    toastr["warning"]("Please Fill Required Fields!");
+        return;
     }
-
-
-   //Validate Input box or selection box should not be blank or empty
-    check_field("amount");
-    check_field("payment_date");
 
     var payment_date=$("#payment_date").val().trim();
     var amount=$("#amount").val().trim();
@@ -414,22 +356,23 @@ function save_payment(purchase_id){
       toastr["error"]("Please Enter Valid Amount!");
       return false; 
     }
-
-    if(amount > parseFloat($("#due_amount_temp").html().trim())){
+    let amt = $("#due_amount_temp").html().trim();
+    var input_amt = parseFloat(amt.replace(/,/g, ''));
+    if(amount > input_amt){
       toastr["error"]("Entered Amount Should not be Greater than Due Amount!");
       return false;
     }
 
     $(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
     $(".payment_save").attr('disabled',true);  //Enable Save or Update button
-    $.post('purchase/save_payment', {purchase_id: purchase_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
+    $.post('purchase/savePayment', {purchase_id: purchase_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
       result=result.trim();
   //alert(result);return;
         if(result=="success")
         {
-          $('#pay_now').modal('toggle');
+          hideModal();
           toastr["success"]("Payment Recorded Successfully!");
-          $('#example2').DataTable().ajax.reload();
+          $('#purchase_list').DataTable().ajax.reload();
         }
         else if(result=="failed")
         {
@@ -446,16 +389,16 @@ function save_payment(purchase_id){
 
 function delete_purchase_payment(payment_id){
  if(confirm("Do You Wants to Delete Record ?")){
-    var base_url=$("#baseUrl").val().trim();
+    var base_url=$("#baseURL").val().trim();
     $(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
-   $.post(base_url+"purchase/delete_payment",{payment_id:payment_id},function(result){
+   $.post(base_url+"purchase/deletePayment",{payment_id:payment_id},function(result){
    //alert(result);return;
    result=result.trim();
      if(result=="success")
         {
-          $('#view_payments_modal').modal('toggle');
+          hideModal();
           toastr["success"]("Record Deleted Successfully!");
-          $('#example2').DataTable().ajax.reload();
+          $('#purchase_list').DataTable().ajax.reload();
         }
         else if(result=="failed"){
           toastr["error"]("Failed to Delete .Try again!");

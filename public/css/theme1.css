@@ -1,0 +1,56 @@
+:root{
+    --base-bgcolor: radial-gradient(farthest-side ellipse at 10% 0, #333867 20%, #17193b);
+    --box-bgcolor:rgba(0,0,0,0.24);
+    --menu-bgcolor: #262948;
+    --sidebar-bgcolor: rgba(0,0,0,0.24);
+    --sidebar-hover: rgba(0,0,0,0.24);
+    --table-header: rgba(0,0,0,0.24);
+    --table-hover-color: rgba(0,0,0,0.1);
+    --menu-hover: #1c1e35;
+    --icon-color: #e1e1e1;
+    --text-color: #e1e1e1;
+    --logo-bgcolor: rgba(0,0,0,0.24);
+    --border-color: rgba(0,0,0,0.8);
+    --box-text: #e1e1e1;
+    --input-border: none;
+    --input-bgcolor: rgba(0,0,0,0.24);
+    --textbox-text: #e1e1e1;
+    --dashboard-icon-bgcolor: none;
+    --box-shadow-color:rgba(0,0,0,0.54);
+    --btn-color: rgb(221, 218, 218);
+    --theme: #5240a8;
+    --sidebar-color: #fff;
+    --sidebar-menu-bgcolor: #4330a7;
+    --sidebar-icon-color: #e1e1e1;
+    --container-bgcolor: none;
+    --container-border-color:none;
+    --btn-bgcolor: #5240a8;
+    --btn-hover: #4330a7;
+    --error-text: #ed143d;
+    --warning-btn: #ed143d;
+    --warning-btn-hover: #cc1f3e;
+    --font: 'Roboto', sans-serif;
+    --label-success: green;
+    --label-warning: rgb(202, 202, 43);
+    --label-danger: crimson;
+    --icon-color1: #e1e1e1;
+    --icon-color2: #e1e1e1;
+    --icon-color3: #e1e1e1;
+    --icon-color4: #e1e1e1;
+    --font-size: 13px;
+} 
+#error500-img{
+    filter:brightness(69%) hue-rotate(183deg) drop-shadow(2px 2px 4px #000);
+}
+#error403-img{
+    filter:brightness(90%) drop-shadow(2px 5px 5px #000);
+}
+#error-btn{
+    border: 2px solid var(--text-color);
+    color: var(--btn-color);
+}
+#error-btn:hover{
+    color: var(--base-bgcolor);
+    border: 2px solid var(--base-bgcolor);
+    background-color: var(--btn-color);
+}

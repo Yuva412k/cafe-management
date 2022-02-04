@@ -1,0 +1,42 @@
+:root{
+    --base-bgcolor: #5f6366;
+    /*--base-bgcolor: radial-gradient(farthest-side ellipse at 10% 0,  #5e6265 20%, rgb(230, 140, 140));/* #4285f4  #be4539*/
+    --box-bgcolor:#85888b;
+    --menu-bgcolor: #262948;
+    --sidebar-bgcolor: rgba(255, 255, 255, 0.24);
+    --sidebar-hover: #edb5c1;
+    --table-header: rgba(0,0,0,0.24);
+    --table-hover-color: #4d6e9b;
+    --menu-hover: #000000;
+    --icon-color: #e1e1e1;
+    --text-color: #e1e1e1;
+    --logo-bgcolor: rgba(0,0,0,0.24);
+    --border-color: rgba(255, 255, 255, 0.8);
+    --box-text: #ffffff;
+    --input-border: none;
+    --input-bgcolor: rgba(0,0,0,0.24);
+    --textbox-text: #e1e1e1;
+    --dashboard-icon-bgcolor: none;
+    --box-shadow-color:#000000;
+    --btn-color: rgb(255, 255, 255);
+    --theme: #4d6e9b;
+    --sidebar-color: #fff;
+    --sidebar-menu-bgcolor: #edb5c1;
+    --sidebar-icon-color: #e1e1e1;
+    --container-bgcolor: none;
+    --container-border-color:none;
+    --btn-bgcolor: #4d6e9b;
+    --btn-hover: #99ced2;
+    --error-text: #ed143d;
+    --warning-btn: #729dbe;
+    --warning-btn-hover: #cc1f3e;
+    --font: 'Roboto', sans-serif;
+    --label-success: green;
+    --label-warning: rgb(202, 202, 43);
+    --label-danger: crimson;
+    --icon-color1: #ffffff;
+    --icon-color2: #96cdd2;
+    --icon-color3: #729dbf;
+    --icon-color4: #ecb4c1;
+    --font-size: 13px;
+} 

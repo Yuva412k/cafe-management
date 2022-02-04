@@ -4,33 +4,12 @@ $('#save,#update').click(function (e) {
     e.preventDefault();
 
 	let base_url=$("#baseURL").val().trim();
-    //Initially flag set true
-    let flag=true;
 
-    function check_field(id)
-    {
-      if(!$("#"+id).val().trim() ) //Also check Others????
-        {
-            $('#'+id+'_msg').fadeIn(200).show().html('Required Field').addClass('required');
-           // $('#'+id).css({'background-color' : '#E8E2E9'});
-            flag=false;
+    if(!validateForm()){
+        toastr["warning"]("Please Fill Required Fields!");
+            return;
         }
-        else
-        {
-             $('#'+id+'_msg').fadeOut(200).hide();
-             //$('#'+id).css({'background-color' : '#FFFFFF'});    //White color
-        }
-    }
-
-    //Validate Input box or selection box should not be blank or empty	
-	check_field("role_name");	
-	
-    if(flag==false)
-    {
-
-		toastr["warning"]("Please Fill Required Fields!")
-		return;
-    }
+    
 
     var this_id=this.id;
 

@@ -15,41 +15,11 @@ $('#save, #update').click(function(e){
 
     let baseURL = $('#baseURL').val().trim();
 
-    // var email = $('#email').val().trim();
-    flag = true;
-    function check_field(id)
-    {
-
-      if(!$("#"+id).val().trim() ) //Also check Others????
-        {
-            $('#'+id+'_msg').fadeIn(200).show().html('Required Field').addClass('required');
-            $('#'+id).css({'background-color' : '#E8E2E9'});
-            flag=false;
+    if(!validateForm()){
+        toastr["warning"]("Please Fill Required Fields!");
+            return;
         }
-        else
-        {
-             $('#'+id+'_msg').fadeOut(200).hide();
-             $('#'+id).css({'background-color' : '#FFFFFF'});    //White color
-        }
-    }
-
-    //Validate form input's
-    check_field('supplier_name');
-    check_field('supplier_id');
     
-    // var email = $('#email').val().trim();
-    // if(email!='' && !validateEmail(email)){
-    //     $('#email_msg').html('Invalid Email!').show();
-    //     return toastr['warning']('Please Enter valid Email ID.');
-    // }else{
-    //     $('#email_msg').html('Invalid Email!').hide();
-    // }
-
-    if(flag===false){
-        toastr['warning']('Please Fill Required Fields')
-        return;
-    }
-
     var this_id = this.id;
 
     if(this_id == 'save')//Save popup
@@ -225,5 +195,122 @@ function checkcheckbox(){
          $("#checkall").prop('checked', true);
     }else{
          $('#checkall').prop('checked', false);
-    }
+    } 
 }
+
+
+
+function pay_now(supplier_id){
+
+    $.post($("#baseURL").val().trim()+'supplier/showPayNowModal', {'supplier_id': supplier_id}, function(result) {
+      $(".pay_now_modal").html('').html(result);
+        showModal();
+  
+    });
+  }
+  function save_payment(supplier_id){
+    var base_url=$("#baseURL").val().trim();
+    
+  
+        if(!validateForm()){
+          toastr["warning"]("Please Fill Required Fields!");
+              return;
+        }
+  
+  
+      var payment_date=$("#payment_date").val().trim();
+      var amount=$("#amount").val().trim();
+      var payment_type=$("#payment_type").val().trim();
+      var payment_note=$("#payment_note").val().trim();
+  
+      if(amount == 0){
+        toastr["error"]("Please Enter Valid Amount!");
+        return false; 
+      }
+  
+      if(amount > parseFloat($("#amount").attr('data-due-amt'))){
+        toastr["error"]("Entered Amount Should not be Greater than Due Amount!");
+        return false;
+      }
+  
+      //$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+      //$(".payment_save").attr('disabled',true);  //Enable Save or Update button
+      $.post('supplier/savePayment', {supplier_id: supplier_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
+        result=result.trim();
+    //alert(result);return;
+          if(result=="success")
+          {
+            hideModal();
+            toastr["success"]("Payment Recorded Successfully!");
+            $('#supplier_list').DataTable().ajax.reload();
+          }
+          else if(result=="failed")
+          {
+             toastr["error"]("Sorry! Failed to save Record.Try again!");
+          }
+          else
+          {
+            toastr["error"](result);
+          }
+          $(".payment_save").attr('disabled',false);  //Enable Save or Update button
+          $(".overlay").remove();
+      });
+  }
+  
+  function pay_return_due(supplier_id){
+  
+    $.post($("#baseURL").val().trim()+'supplier/showPayReturnDueModal', {supplier_id: supplier_id}, function(result) {
+      $(".pay_now_modal").html('').html(result);
+
+      showModal();
+  
+    });
+  }
+  function save_return_due_payment(supplier_id){
+    var base_url=$("#baseURL").val().trim();
+    
+  
+    if(!validateForm()){
+		toastr["warning"]("Please Fill Required Fields!");
+        return;
+    }
+  
+      var payment_date=$("#return_due_payment_date").val().trim();
+      var amount=$("#return_due_amount").val().trim();
+      var payment_type=$("#return_due_payment_type").val().trim();
+      var payment_note=$("#return_due_payment_note").val().trim();
+  
+      if(amount == 0){
+        toastr["error"]("Please Enter Valid Amount!");
+        return false; 
+      }
+  
+      if(amount > parseFloat($("#return_due_amount").attr('data-due-amt'))){
+        toastr["error"]("Entered Amount Should not be Greater than Due Amount!");
+        return false;
+      }
+  
+      //$(".box").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+      //$(".payment_save").attr('disabled',true);  //Enable Save or Update button
+      $.post('supplier/saveReturnDuePayment', {supplier_id: supplier_id,payment_type:payment_type,amount:amount,payment_date:payment_date,payment_note:payment_note}, function(result) {
+        result=result.trim();
+    //alert(result);return;
+          if(result=="success")
+          {
+            hideModal();
+            toastr["success"]("Payment Recorded Successfully!");
+            $('#supplier_list').DataTable().ajax.reload();
+          }
+          else if(result=="failed")
+          {
+             toastr["error"]("Sorry! Failed to save Record.Try again!");
+          }
+          else
+          {
+            toastr["error"](result);
+          }
+          $(".return_due_payment_save").attr('disabled',false);  //Enable Save or Update button
+          $(".overlay").remove();
+      });
+  }
+  

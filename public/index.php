@@ -9,8 +9,8 @@ require_once '../vendor/autoload.php';
 
 
 define('BASE_DIR', str_replace("\\", "/", dirname(__DIR__)));
-define('IMAGES',   str_replace("\\", "/", __DIR__) . "/img/");
 define('APP',  BASE_DIR . "/application/");
+define('IMAGES',   APP. "/uploads/");
 
 
 Handler::setHandler();

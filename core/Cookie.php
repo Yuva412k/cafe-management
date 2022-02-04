@@ -38,7 +38,7 @@
 
         self::$userId = Encryption::decrypt($encryptedUserId);
 
-        if(self::$hashedCookie === hash('sha256', self::$userId . ':' . self::$token . Config::get('COOKIE_SECRET_KEY'))){
+        if(self::$hashedCookie == hash('sha256', self::$userId . ':' . self::$token . Config::get('COOKIE_SECRET_KEY'))){
 
             $database = Database::openConnection();
             $database->prepare("SELECT id, cookie_token FROM users WHERE id =:id AND cookie_token =:cookie_token LIMIT 1");
@@ -46,7 +46,7 @@
             $database->bindValue(':cookie_token', self::$token);
             $database->execute();
 
-            $isValid = $database->countRows() === 1 ? true : false;
+            $isValid = $database->countRows() == 1 ? true : false;
         }else{
             $isValid = false;
         }

@@ -79,7 +79,7 @@ class Handler{
      */
     private static function render($e)
     {
-        if($e->getCode()===400){
+        if($e->getCode()==400){
             return (new ErrorController())->error(400);
         }
         return (new ErrorController())->error(500);

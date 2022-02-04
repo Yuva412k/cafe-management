@@ -40,13 +40,12 @@ class Auth extends Component{
      */
     public function unauthenticated()
     {
-        // $this->controller->loadModel('loginModel');
-        // $this->controller->loginModel->logout(Session::getUserId());
-
         if($this->request->isAjax()){
             return $this->controller->error(404);
         }else{
-            return $this->controller->redirector->to(PUBLIC_ROOT);
+            $this->controller->loadModel('loginModel');
+            $this->controller->loginModel->logout(Session::getUserId());
+            return $this->controller->redirector->to(PUBLIC_ROOT.'login/index/conSession');
         }
     }
 
@@ -94,7 +93,7 @@ class Auth extends Component{
                 throw new \Exception('Auth Method doesnt exists:'. $method);
             }
 
-            if($this->{$method}() === false){
+            if($this->{$method}() == false){
                 return false;
             }
         }
@@ -106,10 +105,10 @@ class Auth extends Component{
      */
     public function isloggedIn()
     {
-        if(Session::getIsLoggedIn() === true){
+        if(Session::getIsLoggedIn() == true){
             return true;
         }
-        if(Cookie::isCookieValid()=== true){
+        if(Cookie::isCookieValid()== true){
             return true;
         }
         return false;
@@ -140,7 +139,6 @@ class Auth extends Component{
         if($this->concurrentSession()){
             return false;
         }
-    
         if(!$this->loggedIn()){
             return false;
         }
@@ -159,8 +157,8 @@ class Auth extends Component{
 
         if(Cookie::isCookieValid()){
             //get role from user class, because cookies doen't store roles
-            $role = $this->controller->user->getProfileInfo(Cookie::getUserId())["role_id"];
-            Session::reset(['user_id'=> Cookie::getUserId(), "role_id"=>$role, "ip"=>$this->request->clientIp(), "user_agent"=> $this->request->userAgent()]);
+            $role = $this->controller->loadModel('usersModel')->getProfileInfo(Cookie::getUserId());
+            Session::reset(['user_id'=> Cookie::getUserId(), "role_id"=>$role['role_id'], "ip"=>$this->request->clientIp(), "user_agent"=> $this->request->userAgent(),'name'=>$role['name']]);
 
             //reset cookie, Cookie token is usable only once 
             Cookie::reset(Session::getUserId());

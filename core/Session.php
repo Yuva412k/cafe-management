@@ -81,7 +81,10 @@ class Session{
     {
         return empty($_SESSION['role_id']) ? null : $_SESSION['role_id'];
     }
-
+    public static function getUsername()
+    {
+        return empty($_SESSION['name']) ? null : $_SESSION['name'];
+    }
     public static function setFlashData($key, $value){
         if(!empty($key) || !empty($value)){
             $_SESSION[self::FLASH_KEY][$key] = $value;
@@ -129,7 +132,7 @@ class Session{
         if( !isset($_SESSION['user_agent']) || !isset($userAgent) ){
             return false;
         }
-        return $_SESSION['user_agent'] === $userAgent;
+        return $_SESSION['user_agent'] == $userAgent;
     }
     /**
      * matches current Ip Address with the one stored in the session
@@ -142,7 +145,7 @@ class Session{
         {
             return false;
         }
-        return $_SESSION['ip'] === $ip;
+        return $_SESSION['ip'] == $ip;
     }
 
     /**
@@ -206,10 +209,10 @@ class Session{
             $result = $database->fetchAssociative();
             $userSessionID = !empty($result) ? $result['session_id'] : null;
 
-            if($userSessionID === null){
+            if($userSessionID == null){
                 return false;
             }
-            return $session_id !== $userSessionID;    
+            return $session_id != $userSessionID;    
         }
         return false;
     }
@@ -233,7 +236,7 @@ class Session{
         $_SESSION["is_logged_in"] = true;
         $_SESSION["user_id"] = (int)$data["user_id"];
         $_SESSION['role_id'] = $data["role_id"];
-
+        $_SESSION['name']= $data['name'];
         $_SESSION['ip'] = $data["ip"];
         $_SESSION['user_agent'] = $data["user_agent"];
         $_SESSION['generated_time'] = time();
@@ -259,7 +262,7 @@ class Session{
             );
         }
 
-        if(session_status()=== PHP_SESSION_ACTIVE){
+        if(session_status()== PHP_SESSION_ACTIVE){
             session_destroy();
         }
     }

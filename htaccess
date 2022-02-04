@@ -1,0 +1,6 @@
+DirectoryIndex index.php
+
+RewriteEngine On 
+php_flag output_buffering on
+RewriteRule ^$ public_html/index.php [L]
+RewriteRule ^((?!public_html/).*)$ public_html/$1 [L,NC]

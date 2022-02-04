@@ -64,7 +64,7 @@ class Validation {
 
                 // if it was empty and required or not required,
                 // it would be detected by the previous ifs
-                if($rule === "required") {
+                if($rule == "required") {
                     continue;
                 }
 
@@ -110,13 +110,13 @@ class Validation {
             return true;
         }
         else if(is_string($value)){
-            if(trim($value) === '') return true;
+            if(trim($value) == '') return true;
         }
         else if (empty($value) && $value !== '0' && $value !== false && $value !== 0 && $value !== 0.0){
             return true;
         }
         else if (is_array($value) && isset($value['name'], $value['type'], $value['tmp_name'], $value['error'])) {
-            return (int)$value['error'] === UPLOAD_ERR_NO_FILE;
+            return (int)$value['error'] == UPLOAD_ERR_NO_FILE;
         }
         return false;
      }
@@ -358,8 +358,12 @@ class Validation {
         $database->bindValue(":{$col}", $value);
         $database->execute();
 
-        return $database->countRows() === 0;
+        return $database->countRows() == 0;
 
+    }
+
+    private function equals($value, $args){
+        return $value == $args[0];
     }
 
     /**
@@ -379,7 +383,7 @@ class Validation {
         $database->execute();
         $user = $database->fetchAssociative();
 
-        if ($database->countRows() === 1) {
+        if ($database->countRows() == 1) {
             return true;
         }
         return false;
@@ -465,12 +469,12 @@ class Validation {
             "alphaNum" => "Only letters and numbers are allowed for {placeholder}",
             "alphaNumWithSpaces" => "Only letters, numbers and spaces are allowed for {placeholder}",
             "password"      => "Passwords must contain at least one lowercase, uppercase, number and special character",
-            "equals"        => "{placeholder}s aren't equal",
+            "equals"        => "{placeholder}s aren't match",
             "notEqual"      => "{placeholder} can't be equal to {0}",
             "email"         => "Invalid email, Please enter a valid email address",
             "unique"        => "{placeholder} already exists",
             "emailUnique"   => "Email already exists",
-            "credentials"   => "User ID & Password combination doesn't exist",
+            "credentials"   => "We do not recognize the email or password",
             "attempts"      => "",
             "fileUnique"    => "File already exists",
             "fileUploaded"  => "Your uploaded file is invalid!",

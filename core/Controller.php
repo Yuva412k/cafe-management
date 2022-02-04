@@ -110,7 +110,7 @@ abstract class Controller{
         }
         $result = null;
         foreach($components as $component){
-            if($component === "Auth"){
+            if($component == "Auth"){
 
                 $authenticate = $this->Auth->config("authenticate");
 
@@ -159,7 +159,7 @@ abstract class Controller{
 
 
         //clear Buffer
-        // $this->response->clearBuffer();
+        $this->response->clearBuffer();
         (new ErrorController($this->request, $this->response))->{$action}();
 
         return $this->response;

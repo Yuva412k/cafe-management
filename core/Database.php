@@ -18,9 +18,9 @@ class Database{
 
     private function __construct()
     {
-        if($this->connection === null)
+        if($this->connection == null)
         {
-            $this->connection = new PDO('mysql:host='.Config::get('DB_HOST').'port='.Config::get('DB_PORT').';dbname='.Config::get('DB_NAME'), Config::get("DB_USER"), Config::get("DB_PASS"));
+            $this->connection = new PDO('mysql:host='.Config::get('DB_HOST').';dbname='.Config::get('DB_NAME'), Config::get("DB_USER"), Config::get("DB_PASS"));
             // $this->connection = new PDO('mysql:host=localhost;port=3306;dbname=cafemanagement', 'root', null);
             $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -32,7 +32,7 @@ class Database{
      */
     public static function openConnection()
     {
-        if(self::$database === null){
+        if(self::$database == null){
             self::$database = new Database();
         }
         return self::$database;
@@ -67,11 +67,36 @@ class Database{
     }
 
     /**
+     * RollBack a transaction
+     */
+    public function rollBack() {
+        $this->connection->rollBack();
+    }
+
+
+    /**
+     * Begin Transaction
+     */
+    public function beginTransaction() {
+        $this->connection->beginTransaction();
+    }
+
+
+
+    /**
+     * Commit Transaction
+     */
+    public function commit() {
+        $this->connection->commit();
+    }
+
+
+    /**
      * Executes a prepared statement
      */
     public function execute($arr = null)
     {
-        if($arr === null){return $this->statement->execute();}
+        if($arr == null){return $this->statement->execute();}
         else{return $this->statement->execute($arr);}
     }
 
@@ -116,7 +141,6 @@ class Database{
      * "If the last SQL statement executed by the associated PDOStatement was a SELECT statement, some databases may return the number of rows returned by that statement"
      *
      * @access public
-     * @see http://php.net/manual/en/pdostatement.rowcount.php
      */
     public function countRows() 
     {

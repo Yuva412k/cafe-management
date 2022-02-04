@@ -114,7 +114,7 @@ namespace app\core;
      */
     public function isAjax(){
         if(!empty($_SERVER['HTTP_X_REQUESTED_WITH'])){
-            return strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+            return strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
         }
         return false;
     }
@@ -125,7 +125,7 @@ namespace app\core;
      * @return bool
      */
     public function isPost(){
-        return $_SERVER["REQUEST_METHOD"] === "POST";
+        return $_SERVER["REQUEST_METHOD"] == "POST";
     }
 
     /**
@@ -134,7 +134,7 @@ namespace app\core;
      * @return bool
      */
     public function isGet(){
-        return $_SERVER['REQUEST_METHOD'] === 'GET';
+        return $_SERVER['REQUEST_METHOD'] == 'GET';
     }
 
     /**

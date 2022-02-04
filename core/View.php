@@ -42,7 +42,6 @@ namespace app\core;
 
         ob_start();
         require_once $layoutDir . "header.php";
-        require_once $layoutDir . "sidebar.php";
         require_once $filePath  . ".php";
         require_once $layoutDir . "footer.php";
         $renderedFile = ob_get_clean();

@@ -61,7 +61,7 @@ class Security extends Component{
         foreach(['Post', 'Get' , 'Ajax'] as $method){
             $key = 'require'. $method;
             if(!empty($this->config[$key])){
-                if(in_array($this->request->param('action'), $this->config[$key], true) || $this->config[$key] === ['*']){
+                if(in_array($this->request->param('action'), $this->config[$key], true) || $this->config[$key] == ['*']){
                     if(!$this->request->{"is".$method}()){
                         return false;
                     }
@@ -83,7 +83,7 @@ class Security extends Component{
             }else{
                 $referer_host = parse_url($referer, PHP_URL_HOST);
                 $server_host = $this->request->host();
-                $isValid = ($referer_host === $server_host) ? true : false;
+                $isValid = ($referer_host == $server_host) ? true : false;
             }
         }
 
@@ -103,7 +103,7 @@ class Security extends Component{
     {
         $key = "requireSecure";
         if(!empty($this->config[$key])){
-            if(in_array($this->request->param('action'), $this->config[$key], true) || $this->config[$key]===['*']){
+            if(in_array($this->request->param('action'), $this->config[$key], true) || $this->config[$key]==['*']){
                 if(!$this->request->isSSL()){
                     return false;
                 }
@@ -176,7 +176,7 @@ class Security extends Component{
             Logger::log("CSRF Attack", "User: ". Session::getUserId()."provided invalid CSRF Token". $userToken, __FILE__,__LINE__);
             return false;
         }
-        return $userToken === Session::getCsrfToken();
+        return $userToken == Session::getCsrfToken();
     } 
 
 
@@ -204,15 +204,16 @@ class Security extends Component{
         if(!in_array('submit', $exclude, true)){
             $exclude[] = 'submit';
         }
-
+        $count =$this->request->countData($exclude);
+        $acount = count($config['fields']);
         if($this->request->countData($exclude) !== count($config['fields'])){
-            Logger::log('Form Tampering', "User: ".Session::getUserId()." is tampering the form with invalid number of fields", __FILE__, __LINE__);
+            Logger::log('Form Tampering', "User: ".Session::getUserId()." is tampering the form with invalid number of fields expected count - $count  actual count $acount", __FILE__, __LINE__);
             return false;
         }
 
         foreach($config['fields'] as $field){
-            if($this->request->data($field) === null){
-                Logger::log("Form Tampering", "User: ". Session::getUserId(). " is tampering the form with invalid fields",__FILE__, __LINE__);
+            if($this->request->data($field) != '' && $this->request->data($field) == null){
+                Logger::log("Form Tampering", "User: ". Session::getUserId(). " is tampering the form with invalid field : $field",__FILE__, __LINE__);
                 return false;
             }
         }
